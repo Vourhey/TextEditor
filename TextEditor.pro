@@ -11,6 +11,19 @@ CONFIG += debug_and_release warn_on
 OBJECTS_DIR = .obj/
 MOC_DIR     = .moc/
 
+QMAKE_CXXFLAGS_DEBUG += -Og
+
+# уменьшаем размер исполняемого файла
+CONFIG(release, debug|release) {
+    linux-g++ {
+        QMAKE_CXXFLAGS_RELEASE += -Os -Wl,--strip-all # --gc-sections
+    }
+}
+
+# Uncomment for profiler
+#QMAKE_CXXFLAGS_DEBUG += -pg
+#QMAKE_LFLAGS_DEBUG += -pg
+
 SOURCES = main.cpp  \
     mainwindow.cpp  \
     tabwidget.cpp   \

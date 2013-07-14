@@ -1,0 +1,23 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/application-exit.png</file>
+    <file>images/document-new.png</file>
+    <file>images/document-open.png</file>
+    <file>images/document-open-recent.png</file>
+    <file>images/document-print.png</file>
+    <file>images/document-save-as.png</file>
+    <file>images/document-save.png</file>
+    <file>images/edit-copy.png</file>
+    <file>images/edit-cut.png</file>
+    <file>images/edit-delete.png</file>
+    <file>images/edit-find.png</file>
+    <file>images/edit-find-replace.png</file>
+    <file>images/edit-paste.png</file>
+    <file>images/edit-redo.png</file>
+    <file>images/edit-select-all.png</file>
+    <file>images/edit-undo.png</file>
+    <file>images/go-next.png</file>
+    <file>images/go-previous.png</file>
+    <file>images/help-about.png</file>
+</qresource>
+</RCC>

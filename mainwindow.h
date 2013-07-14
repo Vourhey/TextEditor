@@ -6,6 +6,8 @@
 class TabWidget;
 class QAction;
 class QMenu;
+class QToolBar;
+class QStatusBar;
 
 class MainWindow : public QMainWindow
 {
@@ -29,6 +31,8 @@ private slots:
 private:
     void createActions();
     void createMenus();
+    void createToolBar();
+    void createStatusBar();
 
     TabWidget *tabWidget;
 
@@ -60,6 +64,9 @@ private:
     QAction *aboutAct;
 
     QMenu *openRecentMenu;
+
+    QToolBar *m_toolBar;
+    QStatusBar *m_statusBar;
 };
 
 #endif // MAINWINDOW_H

@@ -24,6 +24,8 @@ CONFIG(release, debug|release) {
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
 
+RESOURCES = images.qrc
+
 SOURCES = main.cpp  \
     mainwindow.cpp  \
     tabwidget.cpp   \

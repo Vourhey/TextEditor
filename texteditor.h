@@ -13,7 +13,7 @@ public:
     void loadFile(const QString &fileName);
     bool isSave();
 
-public:
+public slots:
     bool save();
     bool saveAs();
     void deleteSlot();

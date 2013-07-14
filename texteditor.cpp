@@ -11,6 +11,7 @@ TextEditor::TextEditor(QWidget *parent)
 {
     titleName = QString("untitled %1.txt").arg(number);
     ++number;
+    connect(document(), SIGNAL(contentsChanged()), SIGNAL(fileNameChanged()));
 }
 
 void TextEditor::loadFile(const QString &fileName)
@@ -29,6 +30,10 @@ void TextEditor::loadFile(const QString &fileName)
 
 QString TextEditor::showName() const
 {
+    if(document()->isModified()) {
+        return QString("*%1").arg(titleName);
+    }
+
     return titleName;
 }
 

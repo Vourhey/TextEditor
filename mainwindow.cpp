@@ -4,10 +4,14 @@
 #include "mainwindow.h"
 #include "tabwidget.h"
 #include "texteditor.h"
+#include "findwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    m_findBar = 0;
+    m_findWidget = 0;
+
     tabWidget = new TabWidget;
     setCentralWidget(tabWidget);
 
@@ -44,12 +48,10 @@ void MainWindow::createActions()
     saveAct = new QAction(tr("Save"), this);
     saveAct->setIcon(QIcon(":/images/document-save.png"));
     saveAct->setShortcut(QKeySequence::Save);
-    connect(saveAct, SIGNAL(triggered()), SLOT(saveSlot()));
 
     saveAsAct = new QAction(tr("Save As..."), this);
     saveAsAct->setIcon(QIcon(":/images/document-save-as.png"));
     saveAsAct->setShortcut(QKeySequence::SaveAs);
-    connect(saveAsAct, SIGNAL(triggered()), SLOT(saveAsSlot()));
 
     saveAllAct = new QAction(tr("Save All"), this);
     connect(saveAllAct, SIGNAL(triggered()), SLOT(saveAllSlot()));
@@ -61,7 +63,7 @@ void MainWindow::createActions()
     quitAct = new QAction(tr("Quit"), this);
     quitAct->setIcon(QIcon(":/images/application-exit.png"));
     quitAct->setShortcut(QKeySequence::Quit);
-    connect(quitAct, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(quitAct, SIGNAL(triggered()), SLOT(close()));
 
     undoAct = new QAction(tr("Undo"), this);
     undoAct->setIcon(QIcon(":/images/edit-undo.png"));
@@ -93,6 +95,7 @@ void MainWindow::createActions()
     findAct = new QAction(tr("Find"), this);
     findAct->setIcon(QIcon(":/images/edit-find.png"));
     findAct->setShortcut(QKeySequence::Find);
+    connect(findAct, SIGNAL(triggered()), SLOT(findSlot()));
 
     findNextAct = new QAction(tr("Find Next"), this);
     findNextAct->setShortcut(QKeySequence(Qt::Key_F3));
@@ -141,6 +144,7 @@ void MainWindow::createMenus()
     m->addSeparator();
     m->addAction(openAct);
     openRecentMenu = m->addMenu(tr("Open Recent"));
+    openRecentMenu->setEnabled(false);
     m->addSeparator();
     m->addAction(saveAct);
     m->addAction(saveAsAct);
@@ -223,16 +227,6 @@ void MainWindow::openSlot()
     }
 }
 
-void MainWindow::saveSlot()
-{
-    tabWidget->editor()->save();
-}
-
-void MainWindow::saveAsSlot()
-{
-    tabWidget->editor()->saveAs();
-}
-
 void MainWindow::saveAllSlot()
 {
     for(int i=0; i<tabWidget->count(); ++i) {
@@ -242,6 +236,22 @@ void MainWindow::saveAllSlot()
 
 void MainWindow::findSlot()
 {
+    if(!m_findBar) {
+        m_findBar = new QToolBar(this);
+        m_findWidget = new FindWidget(m_findBar);
+
+        connect(findNextAct, SIGNAL(triggered()), m_findWidget, SLOT(next()));
+        connect(findPrevAct, SIGNAL(triggered()), m_findWidget, SLOT(previous()));
+
+        m_findBar->setMovable(false);
+        m_findBar->setFloatable(false);
+        m_findBar->addWidget(m_findWidget);
+        addToolBar(Qt::BottomToolBarArea, m_findBar);
+    }
+
+    m_findWidget->setEditor(tabWidget->editor());
+    m_findWidget->setFocus();
+    m_findBar->show();    
 }
 
 void MainWindow::updateActsSlot(int i)
@@ -266,6 +276,11 @@ void MainWindow::updateActsSlot(int i)
         prevTabAct->setEnabled(false);
         nextTabAct->setEnabled(false);
         gotoAct->setEnabled(false);
+
+        if(m_findBar) {
+            m_findBar->hide();
+        }
+        setWindowTitle("TextEditor");
         return;
     }
 
@@ -282,6 +297,11 @@ void MainWindow::updateActsSlot(int i)
     gotoAct->setEnabled(true);
 
     TextEditor *te = tabWidget->editor(i);
+
+    saveAct->disconnect();
+    connect(saveAct, SIGNAL(triggered()), te, SLOT(save()));
+    saveAsAct->disconnect();
+    connect(saveAsAct, SIGNAL(triggered()), te, SLOT(saveAs()));
 
     undoAct->setEnabled(te->document()->isUndoAvailable());
     redoAct->setEnabled(te->document()->isRedoAvailable());
@@ -315,6 +335,14 @@ void MainWindow::updateActsSlot(int i)
     connect(pasteAct, SIGNAL(triggered()), te, SLOT(paste()));
     connect(selectAllAct, SIGNAL(triggered()), te, SLOT(selectAll()));
     connect(deleteAct, SIGNAL(triggered()), te, SLOT(deleteSlot()));
+
+    if(m_findBar) {
+        if(m_findBar->isVisible()) {
+            m_findWidget->setEditor(te);
+        }
+    }
+
+    setWindowTitle(QString("%1 - TextEditor").arg(te->showName()));
 }
 
 void MainWindow::aboutSlot()

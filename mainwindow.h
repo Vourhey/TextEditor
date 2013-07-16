@@ -4,6 +4,8 @@
 #include <QMainWindow>
 
 class TabWidget;
+class FindWidget;
+
 class QAction;
 class QMenu;
 class QToolBar;
@@ -21,8 +23,6 @@ protected:
 private slots:
     void newSlot();
     void openSlot();
-    void saveSlot();
-    void saveAsSlot();
     void saveAllSlot();
     void findSlot();
     void updateActsSlot(int i);
@@ -35,6 +35,7 @@ private:
     void createStatusBar();
 
     TabWidget *tabWidget;
+    FindWidget *m_findWidget;
 
     QAction *newAct,
         *openAct,
@@ -65,7 +66,8 @@ private:
 
     QMenu *openRecentMenu;
 
-    QToolBar *m_toolBar;
+    QToolBar *m_toolBar,
+        *m_findBar;
     QStatusBar *m_statusBar;
 };
 

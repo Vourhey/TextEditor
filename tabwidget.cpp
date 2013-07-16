@@ -1,4 +1,7 @@
 #include <QMenu>
+#include <QSignalMapper>
+#include <QShortcut>
+#include <QKeySequence>
 
 #include "tabwidget.h"
 #include "texteditor.h"
@@ -8,16 +11,34 @@
 TabBar::TabBar(TabWidget *parent)
     : QTabBar(parent)
 {
+    qWarning("TabBar::TabBar()");
     contextMenu = 0;
     tabW = parent;
 
     setMovable(true);
     setDocumentMode(true);
     setTabsClosable(true);
+
+// add shortcuts Alt+[0-9]
+    QSignalMapper *m = new QSignalMapper(this);
+    QShortcut *shortcut;
+    QString altd("Alt+%1");
+
+    for(int i=1; i<10; ++i) {
+        shortcut = new QShortcut(QKeySequence(altd.arg(i)), this);
+        connect(shortcut, SIGNAL(activated()), m, SLOT(map()));
+        m->setMapping(shortcut, i-1);
+    }
+    shortcut = new QShortcut(QKeySequence("Alt+0"), this);
+    connect(shortcut, SIGNAL(activated()), m, SLOT(map()));
+    m->setMapping(shortcut, 9);
+
+    connect(m, SIGNAL(mapped(int)), SLOT(setCurrentIndex(int)));
 }
 
 void TabBar::contextMenuEvent(QContextMenuEvent *ev)
 {
+    qWarning("TabBar::contextMenuEvent()");
     if(!contextMenu) {
         contextMenu = new QMenu;
         saveAct = new QAction(tr("Save"), this);
@@ -46,6 +67,14 @@ void TabBar::contextMenuEvent(QContextMenuEvent *ev)
     contextMenu->exec(ev->globalPos());
 }
 
+/*
+void TabBar::changeTabByAlt()
+{
+    qWarning("TabBar::changeTabByAlt()");
+    QAction *s = qobject_cast<QAction*>(sender());
+    setCurrentIndex(s->data().toInt());
+} */
+
 /* TabWidget */
 
 TabWidget::TabWidget(QWidget *parent)
@@ -64,7 +93,8 @@ TextEditor *TabWidget::createNewTab(const QString &name)
     }
     connect(cWidget, SIGNAL(fileNameChanged()), SLOT(updateTitle()));
 
-    addTab(cWidget, cWidget->showName());
+    int i = addTab(cWidget, cWidget->showName());
+    setCurrentIndex(i);
     cWidget->setFocus();
 
     return cWidget;
@@ -72,11 +102,17 @@ TextEditor *TabWidget::createNewTab(const QString &name)
 
 bool TabWidget::closeAll()
 {
-    for(int i=0; i<count(); ++i) {
-        if(!qobject_cast<TextEditor*>(widget(i))->isSave()) {
+    TextEditor *te;
+    for(int i=count() - 1; i >= 0; --i) {
+        te = editor(i);
+        if(!te->isSave()) {
             return false;
         }
+
+        removeTab(i);
+        delete te;
     }
+
     return true;
 }
 

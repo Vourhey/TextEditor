@@ -15,6 +15,9 @@ class TabBar : public QTabBar
 public:
     TabBar(TabWidget *parent);
 
+private slots:
+//    void changeTabByAlt();
+
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
 

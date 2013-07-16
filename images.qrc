@@ -19,5 +19,7 @@
     <file>images/go-next.png</file>
     <file>images/go-previous.png</file>
     <file>images/help-about.png</file>
+    <file>images/go-down.png</file>
+    <file>images/go-up.png</file>
 </qresource>
 </RCC>

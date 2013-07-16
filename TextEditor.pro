@@ -29,9 +29,11 @@ RESOURCES = images.qrc
 SOURCES = main.cpp  \
     mainwindow.cpp  \
     tabwidget.cpp   \
-    texteditor.cpp
+    texteditor.cpp  \
+    findwidget.cpp
 
 HEADERS = mainwindow.h  \
     tabwidget.h         \
-    texteditor.h
+    texteditor.h        \
+    findwidget.h
 

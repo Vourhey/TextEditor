@@ -30,10 +30,14 @@ SOURCES = main.cpp  \
     mainwindow.cpp  \
     tabwidget.cpp   \
     texteditor.cpp  \
-    findwidget.cpp
+    findwidget.cpp  \
+    application.cpp \
+    gotodialog.cpp
 
 HEADERS = mainwindow.h  \
     tabwidget.h         \
     texteditor.h        \
-    findwidget.h
+    findwidget.h        \
+    application.h       \
+    gotodialog.h
 

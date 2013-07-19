@@ -1,18 +1,19 @@
 #ifndef FINDWIDGET_H
 #define FINDWIDGET_H
 
-#include <QWidget>
+#include <QToolBar>
 
 class TextEditor;
-class QPushButton;
+class QToolButton;
 class QLineEdit;
 class QCheckBox;
+class QTextDocument;
 
-class FindWidget : public QWidget 
+class FindWidget : public QToolBar
 {
     Q_OBJECT
 public:
-    FindWidget(QWidget *parent);
+    FindWidget(QWidget *parent = 0);
 
     void setEditor(TextEditor *textEditor);
 
@@ -25,8 +26,10 @@ private slots:
 
 private:
     TextEditor *m_editor;
+    QTextDocument *doc;
+    QString findString;
 
-    QPushButton *closeButton,
+    QToolButton *closeButton,
         *nextButton,
         *prevButton,
         *highlightAllButton;

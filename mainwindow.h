@@ -2,9 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QStringList>
 
 class TabWidget;
 class FindWidget;
+class GotoDialog;
 
 class QAction;
 class QMenu;
@@ -17,6 +19,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
 
+    void openFiles(const QStringList &files);
+
 protected:
     void closeEvent(QCloseEvent *ev);
 
@@ -25,6 +29,7 @@ private slots:
     void openSlot();
     void saveAllSlot();
     void findSlot();
+    void gotoSlot();
     void updateActsSlot(int i);
     void aboutSlot();
 
@@ -36,6 +41,7 @@ private:
 
     TabWidget *tabWidget;
     FindWidget *m_findWidget;
+    GotoDialog *m_gotoDialog;
 
     QAction *newAct,
         *openAct,
@@ -66,8 +72,7 @@ private:
 
     QMenu *openRecentMenu;
 
-    QToolBar *m_toolBar,
-        *m_findBar;
+    QToolBar *m_toolBar;
     QStatusBar *m_statusBar;
 };
 

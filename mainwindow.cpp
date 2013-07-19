@@ -1,16 +1,23 @@
-#include <QtGui>
-#include <QtWidgets>
+#include <QAction>
+#include <QMessageBox>
+#include <QToolBar>
+#include <QMenu>
+#include <QStatusBar>
+#include <QMenuBar>
+#include <QFileDialog>
+#include <QToolButton>
 
 #include "mainwindow.h"
 #include "tabwidget.h"
 #include "texteditor.h"
 #include "findwidget.h"
+#include "gotodialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    m_findBar = 0;
     m_findWidget = 0;
+    m_gotoDialog = 0;
 
     tabWidget = new TabWidget;
     setCentralWidget(tabWidget);
@@ -38,100 +45,131 @@ void MainWindow::createActions()
     newAct = new QAction(tr("New"), this);
     newAct->setIcon(QIcon(":/images/document-new.png"));
     newAct->setShortcut(QKeySequence::New);
+    newAct->setStatusTip(tr("Create a new document"));
     connect(newAct, SIGNAL(triggered()), SLOT(newSlot()));
 
     openAct = new QAction(tr("Open"), this);
     openAct->setIcon(QIcon(":/images/document-open.png"));
     openAct->setShortcut(QKeySequence::Open);
+    openAct->setStatusTip(tr("Open a file"));
     connect(openAct, SIGNAL(triggered()), SLOT(openSlot()));
 
     saveAct = new QAction(tr("Save"), this);
     saveAct->setIcon(QIcon(":/images/document-save.png"));
     saveAct->setShortcut(QKeySequence::Save);
+    saveAct->setStatusTip(tr("Save the current document"));
 
     saveAsAct = new QAction(tr("Save As..."), this);
     saveAsAct->setIcon(QIcon(":/images/document-save-as.png"));
     saveAsAct->setShortcut(QKeySequence::SaveAs);
+    saveAsAct->setStatusTip(tr("Save current document as another file"));
 
     saveAllAct = new QAction(tr("Save All"), this);
     connect(saveAllAct, SIGNAL(triggered()), SLOT(saveAllSlot()));
+    saveAllAct->setStatusTip(tr("Save all documents"));
 
     closeTabAct = new QAction(tr("Close Tab"), this);
     closeTabAct->setShortcut(QKeySequence::Close);
+    closeTabAct->setStatusTip(tr("Close the current document"));
     connect(closeTabAct, SIGNAL(triggered()), tabWidget, SLOT(closeTabAt()));
 
     quitAct = new QAction(tr("Quit"), this);
     quitAct->setIcon(QIcon(":/images/application-exit.png"));
     quitAct->setShortcut(QKeySequence::Quit);
+    quitAct->setStatusTip(tr("Quit the program"));
     connect(quitAct, SIGNAL(triggered()), SLOT(close()));
 
     undoAct = new QAction(tr("Undo"), this);
     undoAct->setIcon(QIcon(":/images/edit-undo.png"));
     undoAct->setShortcut(QKeySequence::Undo);
+    undoAct->setStatusTip(tr("Undo the last action"));
     
     redoAct = new QAction(tr("Redo"), this);
     redoAct->setIcon(QIcon(":/images/edit-redo.png"));
     redoAct->setShortcut(QKeySequence::Redo);
+    redoAct->setStatusTip(tr("Redo the last undone action"));
 
     cutAct = new QAction(tr("Cut"), this);
     cutAct->setIcon(QIcon(":/images/edit-cut.png"));
     cutAct->setShortcut(QKeySequence::Cut);
+    cutAct->setStatusTip(tr("Cut the selection"));
 
     copyAct = new QAction(tr("Copy"), this);
     copyAct->setIcon(QIcon(":/images/edit-copy.png"));
     copyAct->setShortcut(QKeySequence::Copy);
+    copyAct->setStatusTip(tr("Copy the selection"));
 
     pasteAct = new QAction(tr("Paste"), this);
     pasteAct->setIcon(QIcon(":/images/edit-paste.png"));
     pasteAct->setShortcut(QKeySequence::Paste);
+    pasteAct->setStatusTip(tr("Paste the clipboard"));
 
     deleteAct = new QAction(tr("Delete"), this);
     deleteAct->setIcon(QIcon(":/images/edit-delete.png"));
+    deleteAct->setStatusTip(tr("Delete the current selection"));
 
     selectAllAct = new QAction(tr("Select All"), this);
     selectAllAct->setIcon(QIcon(":/images/edit-select-all.png"));
     selectAllAct->setShortcut(QKeySequence::SelectAll);
+    selectAllAct->setStatusTip(tr("Select the text in the entire document"));
 
     findAct = new QAction(tr("Find"), this);
     findAct->setIcon(QIcon(":/images/edit-find.png"));
     findAct->setShortcut(QKeySequence::Find);
+    findAct->setStatusTip(tr("Search for text"));
     connect(findAct, SIGNAL(triggered()), SLOT(findSlot()));
 
     findNextAct = new QAction(tr("Find Next"), this);
     findNextAct->setShortcut(QKeySequence(Qt::Key_F3));
+    findNextAct->setStatusTip(tr("Search forwards for the same text"));
 
     findPrevAct = new QAction(tr("Find Previous"), this);
     findPrevAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F3));
+    findPrevAct->setStatusTip(tr("Search backwards for the same text"));
 
     findAndReplaceAct = new QAction(tr("Find And Replace..."), this);
     findAndReplaceAct->setIcon(QIcon(":/images/edit-find-replace.png"));
     findAndReplaceAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+    findAndReplaceAct->setStatusTip(tr("Search for and replace text"));
 
     selectFontAct = new QAction(tr("Select Font..."), this);
+    selectFontAct->setStatusTip(tr("Change the editor font"));
 
     lineNumbersAct = new QAction(tr("Line Numbers"), this);
     lineNumbersAct->setCheckable(true);
+    lineNumbersAct->setStatusTip(tr("Show line numbers"));
 
     toolBarAct = new QAction(tr("Toolbar"), this);
     toolBarAct->setCheckable(true);
+    toolBarAct->setChecked(true);
+    toolBarAct->setStatusTip(tr("Change the visibility of the toolbar"));
 
     statusBarAct = new QAction(tr("Statusbar"), this);
     statusBarAct->setCheckable(true);
+    statusBarAct->setChecked(true);
+    statusBarAct->setStatusTip(tr("Change the visibility of the statusbar"));
 
     prevTabAct = new QAction(tr("Previous Tab"), this);
     prevTabAct->setIcon(QIcon(":/images/go-previous.png"));
     prevTabAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageDown));
+    prevTabAct->setEnabled(false);
+    prevTabAct->setStatusTip(tr("Select the previous tab"));
 
     nextTabAct = new QAction(tr("Next Tab"), this);
     nextTabAct->setIcon(QIcon(":/images/go-next.png"));
     nextTabAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageUp));
+    nextTabAct->setEnabled(false);
+    nextTabAct->setStatusTip(tr("Select the next tab"));
 
     gotoAct = new QAction(tr("Go to..."), this);
     gotoAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
+    gotoAct->setStatusTip(tr("Go to a specific location in the document"));
+    connect(gotoAct, SIGNAL(triggered()), SLOT(gotoSlot()));
 
     aboutAct = new QAction(tr("About"), this);
     aboutAct->setIcon(QIcon(":/images/help-about.png"));
     aboutAct->setShortcut(QKeySequence::HelpContents);
+    aboutAct->setStatusTip(tr("About this application"));
     connect(aboutAct, SIGNAL(triggered()), SLOT(aboutSlot()));
 }
 
@@ -180,7 +218,7 @@ void MainWindow::createMenus()
     m->addAction(prevTabAct);
     m->addAction(nextTabAct);
     m->addSeparator();
-    m->addSeparator();
+//    m->addSeparator();
     m->addAction(gotoAct);
 
     m = mBar->addMenu(tr("Help"));
@@ -190,6 +228,7 @@ void MainWindow::createMenus()
 void MainWindow::createToolBar()
 {
     m_toolBar = addToolBar(tr("Toolbar"));
+    connect(toolBarAct, SIGNAL(toggled(bool)), m_toolBar, SLOT(setVisible(bool))); 
 
     m_toolBar->addAction(newAct);
     m_toolBar->addAction(openAct);
@@ -210,6 +249,7 @@ void MainWindow::createStatusBar()
 {
     m_statusBar = statusBar();
     m_statusBar->showMessage(tr("Ready"), 2000);
+    connect(statusBarAct, SIGNAL(toggled(bool)), m_statusBar, SLOT(setVisible(bool)));
 }
 
 void MainWindow::newSlot()
@@ -220,8 +260,13 @@ void MainWindow::newSlot()
 void MainWindow::openSlot()
 {
     QStringList list = QFileDialog::getOpenFileNames(this, tr("Select files"));
-    
-    QStringListIterator it(list);
+
+    openFiles(list);
+}
+
+void MainWindow::openFiles(const QStringList &files)
+{
+    QStringListIterator it(files);
     while(it.hasNext()) {
         tabWidget->createNewTab(it.next());
     }
@@ -236,22 +281,31 @@ void MainWindow::saveAllSlot()
 
 void MainWindow::findSlot()
 {
-    if(!m_findBar) {
-        m_findBar = new QToolBar(this);
-        m_findWidget = new FindWidget(m_findBar);
+    if(!m_findWidget) {
+        m_findWidget = new FindWidget;
 
         connect(findNextAct, SIGNAL(triggered()), m_findWidget, SLOT(next()));
         connect(findPrevAct, SIGNAL(triggered()), m_findWidget, SLOT(previous()));
 
-        m_findBar->setMovable(false);
-        m_findBar->setFloatable(false);
-        m_findBar->addWidget(m_findWidget);
-        addToolBar(Qt::BottomToolBarArea, m_findBar);
+        m_findWidget->setMovable(false);
+        m_findWidget->setFloatable(false);
+
+        addToolBar(Qt::BottomToolBarArea, m_findWidget);
     }
 
     m_findWidget->setEditor(tabWidget->editor());
     m_findWidget->setFocus();
-    m_findBar->show();    
+    m_findWidget->show();    
+}
+
+void MainWindow::gotoSlot()
+{
+    if(!m_gotoDialog) {
+        m_gotoDialog = new GotoDialog(this);
+    }
+
+    m_gotoDialog->setEditor(tabWidget->editor());
+    m_gotoDialog->exec();
 }
 
 void MainWindow::updateActsSlot(int i)
@@ -277,8 +331,8 @@ void MainWindow::updateActsSlot(int i)
         nextTabAct->setEnabled(false);
         gotoAct->setEnabled(false);
 
-        if(m_findBar) {
-            m_findBar->hide();
+        if(m_findWidget) {
+            m_findWidget->hide();
         }
         setWindowTitle("TextEditor");
         return;
@@ -295,6 +349,11 @@ void MainWindow::updateActsSlot(int i)
     findPrevAct->setEnabled(true);
     findAndReplaceAct->setEnabled(true);
     gotoAct->setEnabled(true);
+
+    if(tabWidget->count() > 1) {
+        prevTabAct->setEnabled(true);
+        nextTabAct->setEnabled(true);
+    }
 
     TextEditor *te = tabWidget->editor(i);
 
@@ -336,8 +395,9 @@ void MainWindow::updateActsSlot(int i)
     connect(selectAllAct, SIGNAL(triggered()), te, SLOT(selectAll()));
     connect(deleteAct, SIGNAL(triggered()), te, SLOT(deleteSlot()));
 
-    if(m_findBar) {
-        if(m_findBar->isVisible()) {
+// ? do i need it?
+    if(m_findWidget) {
+        if(m_findWidget->isVisible()) {
             m_findWidget->setEditor(te);
         }
     }

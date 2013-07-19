@@ -1,32 +1,35 @@
-#include <QPushButton>
+#include <QToolButton>
 #include <QLabel>
 #include <QLineEdit>
 #include <QCheckBox>
-#include <QHBoxLayout>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QTextEdit>
+#include <QBrush>
 
 #include "findwidget.h"
 #include "texteditor.h"
 
 FindWidget::FindWidget(QWidget *parent)
-    : QWidget(parent)
+    : QToolBar(parent)
 {
-    closeButton = new QPushButton;
+    closeButton = new QToolButton;
     closeButton->setText("X");
-    connect(closeButton, SIGNAL(clicked()), parent, SLOT(hide()));
+    connect(closeButton, SIGNAL(clicked()), SLOT(hide()));
     
-    nextButton = new QPushButton;
+    nextButton = new QToolButton;
+    nextButton->setEnabled(false);
     nextButton->setIcon(QIcon(":/images/go-down.png"));
     nextButton->setText(tr("Next"));
     connect(nextButton, SIGNAL(clicked()), SLOT(next()));
 
-    prevButton = new QPushButton;
+    prevButton = new QToolButton;
+    prevButton->setEnabled(false);
     prevButton->setIcon(QIcon(":/images/go-up.png"));
     prevButton->setText(tr("Previous"));
     connect(prevButton, SIGNAL(clicked()), SLOT(previous()));
 
-    highlightAllButton = new QPushButton;
+    highlightAllButton = new QToolButton;
     highlightAllButton->setIcon(QIcon(":/images/edit-select-all.png"));
     highlightAllButton->setText(tr("Highlight All"));
     highlightAllButton->setCheckable(true);
@@ -40,50 +43,95 @@ FindWidget::FindWidget(QWidget *parent)
     matchCase = new QCheckBox(tr("Match Case"));
     connect(matchCase, SIGNAL(clicked()), SLOT(updateFind()));
 
-    QHBoxLayout *mainLayout = new QHBoxLayout;
+    addWidget(closeButton);
+    addWidget(new QLabel(tr("Find: ")));
+    addWidget(findLine);
+    addWidget(nextButton);
+    addWidget(prevButton);
+    addWidget(highlightAllButton);
+    addWidget(matchCase);
 
-    mainLayout->addWidget(closeButton);
-    mainLayout->addWidget(new QLabel(tr("Find:")));
-    mainLayout->addWidget(findLine);
-    mainLayout->addWidget(nextButton);
-    mainLayout->addWidget(prevButton);
-    mainLayout->addWidget(highlightAllButton);
-    mainLayout->addWidget(matchCase);
-
-    setLayout(mainLayout);
+// replace every qtoolbutton to qaction and uncomment it
+//    setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 }
 
 void FindWidget::next()
 {
+    QTextDocument::FindFlags ff;
+    if(matchCase->isChecked()) {
+        ff |= QTextDocument::FindCaseSensitively;
+    }
+
+    QTextCursor tc = m_editor->textCursor();
+    tc = doc->find(findString, tc, ff);
+    m_editor->setTextCursor(tc);
 }
 
 void FindWidget::previous()
 {
+    QTextDocument::FindFlags ff = QTextDocument::FindBackward;
+    if(matchCase->isChecked()) {
+        ff |= QTextDocument::FindCaseSensitively;
+    }
+
+    QTextCursor tc = m_editor->textCursor();
+    tc = doc->find(findString, tc, ff);
+    m_editor->setTextCursor(tc);
 }
 
 void FindWidget::updateFind()
 {
-    QString text = findLine->text();
+    findString = findLine->text();
+    if(findString.isEmpty()) {
+        return;
+    }
+
     QTextDocument::FindFlags ff;
 
-    bool selectAll = false;
+    if(findString.isEmpty()) {
+        nextButton->setEnabled(false);
+        prevButton->setEnabled(false);
+    } else {
+        nextButton->setEnabled(true);
+        prevButton->setEnabled(true);
+    }
 
     if(highlightAllButton->isChecked()) {
-        selectAll = true;
+        QTextCursor tc = m_editor->textCursor();
+        tc.setPosition(0);
+
+        QList<QTextEdit::ExtraSelection> selections;
+        QTextEdit::ExtraSelection s;
+        QTextCharFormat format;
+        format.setBackground(QBrush(Qt::yellow));
+
+        tc = doc->find(findString, tc);
+        while(!tc.isNull()) {
+            s.cursor = tc;
+            s.format = format;
+            selections << s;
+            tc = doc->find(findString, tc);
+        }
+
+        m_editor->setExtraSelections(selections);
+    } else {
+        m_editor->setExtraSelections(QList<QTextEdit::ExtraSelection>());
     }
+
     if(matchCase->isChecked()) {
         ff |= QTextDocument::FindCaseSensitively;
     }
 
     QTextCursor tc = m_editor->textCursor();
     tc.setPosition(tc.selectionStart());
-    tc = m_editor->document()->find(text, tc, ff);
+    tc = doc->find(findString, tc, ff);
     m_editor->setTextCursor(tc);
 }
 
 void FindWidget::setEditor(TextEditor *textEditor)
 {
     m_editor = textEditor;
+    doc = textEditor->document();
     updateFind();
 }
 

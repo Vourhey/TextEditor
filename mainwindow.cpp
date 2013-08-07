@@ -6,18 +6,23 @@
 #include <QMenuBar>
 #include <QFileDialog>
 #include <QToolButton>
+#include <QFontDialog>
+#include <QSettings>
 
 #include "mainwindow.h"
 #include "tabwidget.h"
 #include "texteditor.h"
 #include "findwidget.h"
 #include "gotodialog.h"
+#include "findandreplace.h"
+#include "appsettings.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     m_findWidget = 0;
     m_gotoDialog = 0;
+    m_findAndReplace = 0;
 
     tabWidget = new TabWidget;
     setCentralWidget(tabWidget);
@@ -31,9 +36,22 @@ MainWindow::MainWindow(QWidget *parent)
     tabWidget->createNewTab();
 }
 
+MainWindow::~MainWindow()
+{
+    if(m_findWidget) {
+        delete m_findWidget;
+    }
+
+    if(m_findAndReplace) {
+        delete m_findAndReplace;
+    }
+}
+
 void MainWindow::closeEvent(QCloseEvent *ev)
 {
     if(tabWidget->closeAll()) {
+        qWarning("I'm in closeEvent()");
+        writeSettings();
         ev->accept();
     } else {
         ev->ignore();
@@ -131,9 +149,11 @@ void MainWindow::createActions()
     findAndReplaceAct->setIcon(QIcon(":/images/edit-find-replace.png"));
     findAndReplaceAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
     findAndReplaceAct->setStatusTip(tr("Search for and replace text"));
+    connect(findAndReplaceAct, SIGNAL(triggered()), SLOT(findAndReplaceSlot()));
 
     selectFontAct = new QAction(tr("Select Font..."), this);
     selectFontAct->setStatusTip(tr("Change the editor font"));
+    connect(selectFontAct, SIGNAL(triggered()), SLOT(selectFontSlot()));
 
     lineNumbersAct = new QAction(tr("Line Numbers"), this);
     lineNumbersAct->setCheckable(true);
@@ -298,6 +318,15 @@ void MainWindow::findSlot()
     m_findWidget->show();    
 }
 
+void MainWindow::findAndReplaceSlot()
+{
+    if(!m_findAndReplace) {
+        m_findAndReplace = new FindAndReplace;
+    }
+
+    m_findAndReplace->show();
+}
+
 void MainWindow::gotoSlot()
 {
     if(!m_gotoDialog) {
@@ -306,6 +335,14 @@ void MainWindow::gotoSlot()
 
     m_gotoDialog->setEditor(tabWidget->editor());
     m_gotoDialog->exec();
+}
+
+void MainWindow::selectFontSlot()
+{
+    QFont font = QFontDialog::getFont(0, tabWidget->editor()->document()->defaultFont(), this);
+
+    // write to settings new font
+    // and update each texteditor
 }
 
 void MainWindow::updateActsSlot(int i)
@@ -408,5 +445,26 @@ void MainWindow::updateActsSlot(int i)
 void MainWindow::aboutSlot()
 {
     QMessageBox::about(this, tr("TextEditor"), tr("About this programm"));
+}
+
+void MainWindow::readSettings(AppSettings *appSettings)
+{
+    appSettings->beginGroup("mainwindow");
+
+    move(appSettings->value("position", QPoint(200, 200)).toPoint());
+    resize(appSettings->value("size", QSize(450, 300)).toSize());
+
+    appSettings->endGroup();
+}
+
+void MainWindow::writeSettings()
+{
+    QSettings settings;
+
+    settings.beginGroup("mainwindow");
+    settings.setValue("position", pos());
+    settings.setValue("size", size());
+//    settings.setValue("isFullScreenMode", isFullScreen());
+    settings.endGroup();
 }
 

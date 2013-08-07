@@ -7,6 +7,8 @@
 class TabWidget;
 class FindWidget;
 class GotoDialog;
+class FindAndReplace;
+class AppSettings;
 
 class QAction;
 class QMenu;
@@ -18,8 +20,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 
     void openFiles(const QStringList &files);
+    void readSettings(AppSettings *appSettings);
 
 protected:
     void closeEvent(QCloseEvent *ev);
@@ -29,7 +33,9 @@ private slots:
     void openSlot();
     void saveAllSlot();
     void findSlot();
+    void findAndReplaceSlot();
     void gotoSlot();
+    void selectFontSlot();
     void updateActsSlot(int i);
     void aboutSlot();
 
@@ -39,9 +45,12 @@ private:
     void createToolBar();
     void createStatusBar();
 
+    void writeSettings();
+
     TabWidget *tabWidget;
     FindWidget *m_findWidget;
     GotoDialog *m_gotoDialog;
+    FindAndReplace *m_findAndReplace;
 
     QAction *newAct,
         *openAct,

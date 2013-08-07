@@ -9,6 +9,8 @@ unsigned int TextEditor::number = 1;
 TextEditor::TextEditor(QWidget *parent)
     : QPlainTextEdit(parent)
 {
+    document()->setDefaultFont(QFont(tr("Monospace"), 9));
+
     titleName = QString("untitled %1.txt").arg(number);
     ++number;
     connect(document(), SIGNAL(contentsChanged()), SIGNAL(fileNameChanged()));

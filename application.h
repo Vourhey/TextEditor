@@ -5,6 +5,7 @@
 #include <QList>
 
 class MainWindow;
+class AppSettings;
 
 class Application : public QApplication
 {
@@ -12,7 +13,8 @@ class Application : public QApplication
 public:
     Application(int argc, char **argv);
 
-    Application *instance();
+    static Application *instance();
+    void updateSettingsRequest();
 
 public slots:
     void createMainWindow();
@@ -22,9 +24,11 @@ private slots:
     void saveSettings(); */
 
 private:
-//    void restoreSettings();
+    void readSettings();
+    static Application *m_app;
 
     QList<MainWindow*> mainWindows;
+    AppSettings *settings;
 };
 
 #endif // APPLICATION_H

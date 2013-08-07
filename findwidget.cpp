@@ -128,6 +128,16 @@ void FindWidget::updateFind()
     m_editor->setTextCursor(tc);
 }
 
+void FindWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Escape) {
+        hide();
+    } else {
+        QWidget::keyReleaseEvent(event);
+    }
+
+}
+
 void FindWidget::setEditor(TextEditor *textEditor)
 {
     m_editor = textEditor;

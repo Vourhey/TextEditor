@@ -21,6 +21,9 @@ public slots:
     void next();
     void previous();
 
+protected:
+    void keyReleaseEvent(QKeyEvent *event);
+
 private slots:
     void updateFind();
 

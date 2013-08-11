@@ -5,6 +5,7 @@
 
 #include "tabwidget.h"
 #include "texteditor.h"
+#include "application.h"
 
 /* TabBar */
 
@@ -87,7 +88,7 @@ TabWidget::TabWidget(QWidget *parent)
 
 TextEditor *TabWidget::createNewTab(const QString &name)
 {
-    cWidget = new TextEditor;
+    cWidget = myapp->addTextEditor();
     if(!name.isEmpty()) {
         cWidget->loadFile(name);
     }
@@ -110,7 +111,7 @@ bool TabWidget::closeAll()
         }
 
         removeTab(i);
-        delete te;
+        myapp->removeTextEditor(te); 
     }
 
     return true;
@@ -145,7 +146,7 @@ void TabWidget::closeTabAt(int i)
 
     if(te->isSave()) {
         removeTab(i);
-        delete te;
+        myapp->removeTextEditor(te);
     }
 }
 

@@ -3,6 +3,8 @@
 
 #include <QPlainTextEdit>
 
+class AppSettings;
+
 class TextEditor : public QPlainTextEdit
 {
     Q_OBJECT
@@ -12,6 +14,8 @@ public:
     QString showName() const;
     void loadFile(const QString &fileName);
     bool isSave();
+
+    void readSettings(AppSettings *settings);
 
 public slots:
     bool save();

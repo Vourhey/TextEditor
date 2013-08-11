@@ -2,6 +2,10 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QDataStream>
+
+#include "application.h"
+#include "appsettings.h"
 #include "texteditor.h"
 
 unsigned int TextEditor::number = 1;
@@ -9,11 +13,13 @@ unsigned int TextEditor::number = 1;
 TextEditor::TextEditor(QWidget *parent)
     : QPlainTextEdit(parent)
 {
-    document()->setDefaultFont(QFont(tr("Monospace"), 9));
-
     titleName = QString("untitled %1.txt").arg(number);
     ++number;
     connect(document(), SIGNAL(contentsChanged()), SIGNAL(fileNameChanged()));
+
+    qWarning("create TextEditor");
+
+    readSettings(myapp->appSettings());
 }
 
 void TextEditor::loadFile(const QString &fileName)
@@ -103,5 +109,28 @@ void TextEditor::deleteSlot()
     QTextCursor cur = textCursor();
     cur.removeSelectedText();
     setTextCursor(cur);
+}
+
+void TextEditor::readSettings(AppSettings *settings)
+{
+    qWarning("in TextEditor::readSettings()");
+
+    QByteArray defaultFont;
+    QDataStream stream(&defaultFont, QIODevice::WriteOnly);
+    stream << QFont("Monospace", 9);
+
+    qWarning("before \"beginGroup\"");
+
+    settings->beginGroup("texteditor");
+
+    QFont font;
+    qWarning("try get value");
+    QByteArray ba = settings->value("font", defaultFont).toByteArray();
+    QDataStream out(ba);
+    out >> font;
+    qWarning("try set value");
+    document()->setDefaultFont(font);
+
+    settings->endGroup();
 }
 

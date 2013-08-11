@@ -8,6 +8,7 @@
 #include <QToolButton>
 #include <QFontDialog>
 #include <QSettings>
+#include <QDataStream>
 
 #include "mainwindow.h"
 #include "tabwidget.h"
@@ -15,6 +16,7 @@
 #include "findwidget.h"
 #include "gotodialog.h"
 #include "findandreplace.h"
+#include "application.h"
 #include "appsettings.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -340,9 +342,19 @@ void MainWindow::gotoSlot()
 void MainWindow::selectFontSlot()
 {
     QFont font = QFontDialog::getFont(0, tabWidget->editor()->document()->defaultFont(), this);
+    QByteArray ba;
+    QDataStream stream(&ba, QIODevice::WriteOnly);
+    stream << font;
 
     // write to settings new font
     // and update each texteditor
+
+    QSettings settings;
+    settings.beginGroup("texteditor");
+    settings.setValue("font", ba);
+    settings.endGroup();
+
+    myapp->updateSettingsRequest(TEXTEDITOR);
 }
 
 void MainWindow::updateActsSlot(int i)
@@ -465,6 +477,8 @@ void MainWindow::writeSettings()
     settings.setValue("position", pos());
     settings.setValue("size", size());
 //    settings.setValue("isFullScreenMode", isFullScreen());
+    settings.setValue("toolBarVisible", m_toolBar->isVisible());
+    settings.setValue("statusBarVisible", m_statusBar->isVisible());
     settings.endGroup();
 }
 

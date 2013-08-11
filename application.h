@@ -3,9 +3,20 @@
 
 #include <QApplication>
 #include <QList>
+//#include "appsettings.h"
+//#include "texteditor.h"
+//#include "mainwindow.h"
+
+#define myapp Application::instance()
 
 class MainWindow;
+class TextEditor;
 class AppSettings;
+
+enum Request {
+    MAINWINDOW,
+    TEXTEDITOR
+};
 
 class Application : public QApplication
 {
@@ -14,11 +25,13 @@ public:
     Application(int argc, char **argv);
 
     static Application *instance();
-    void updateSettingsRequest();
+    AppSettings *appSettings() const;
 
-public slots:
     void createMainWindow();
+    TextEditor *addTextEditor();
+    void removeTextEditor(TextEditor *editor);
 
+    void updateSettingsRequest(Request r); 
 /*
 private slots:
     void saveSettings(); */
@@ -28,6 +41,7 @@ private:
     static Application *m_app;
 
     QList<MainWindow*> mainWindows;
+    QList<TextEditor*> textEditors;
     AppSettings *settings;
 };
 

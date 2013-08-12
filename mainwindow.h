@@ -31,6 +31,8 @@ protected:
 private slots:
     void newSlot();
     void openSlot();
+    void openRecentSlot();
+    void clearHistorySlot();
     void saveAllSlot();
     void findSlot();
     void findAndReplaceSlot();
@@ -46,6 +48,8 @@ private:
     void createStatusBar();
 
     void writeSettings();
+    void fillRecentFiles();
+    void addToRecentFiles(const QStringList &list);
 
     TabWidget *tabWidget;
     FindWidget *m_findWidget;
@@ -54,6 +58,7 @@ private:
 
     QAction *newAct,
         *openAct,
+        *clearHistoryAct,
         *saveAct,
         *saveAsAct,
         *saveAllAct,

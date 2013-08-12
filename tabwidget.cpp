@@ -35,6 +35,7 @@ TabBar::TabBar(TabWidget *parent)
     m->setMapping(shortcut, 9);
 
     connect(m, SIGNAL(mapped(int)), SLOT(setCurrentIndex(int)));
+    hide();
 }
 
 void TabBar::contextMenuEvent(QContextMenuEvent *ev)
@@ -81,7 +82,9 @@ void TabBar::changeTabByAlt()
 TabWidget::TabWidget(QWidget *parent)
     : QTabWidget(parent)
 {
-    setTabBar(new TabBar(this));
+    m_tabBar = new TabBar(this);
+    m_tabBar->hide();
+    setTabBar(m_tabBar);
     connect(this, SIGNAL(tabCloseRequested(int)), SLOT(closeTabAt(int)));
 //    prevWidget = 0;
 }
@@ -97,6 +100,10 @@ TextEditor *TabWidget::createNewTab(const QString &name)
     int i = addTab(cWidget, cWidget->showName());
     setCurrentIndex(i);
     cWidget->setFocus();
+
+    if(count() > 1) {
+        m_tabBar->show();
+    }
 
     return cWidget;
 }
@@ -148,6 +155,32 @@ void TabWidget::closeTabAt(int i)
         removeTab(i);
         myapp->removeTextEditor(te);
     }
+
+    if(count() == 1) {
+        m_tabBar->hide();
+    }
+}
+
+void TabWidget::nextTab()
+{
+    int i = currentIndex() + 1;
+
+    if(i == count()) {
+        i = 0;
+    }
+
+    setCurrentIndex(i);
+}
+
+void TabWidget::previousTab()
+{
+    int i = currentIndex() - 1;
+    
+    if(i == -1) {
+        i = count() - 1;
+    }
+
+    setCurrentIndex(i);
 }
 
 void TabWidget::updateTitle()

@@ -3,9 +3,6 @@
 
 #include <QApplication>
 #include <QList>
-//#include "appsettings.h"
-//#include "texteditor.h"
-//#include "mainwindow.h"
 
 #define myapp Application::instance()
 
@@ -32,9 +29,9 @@ public:
     void removeTextEditor(TextEditor *editor);
 
     void updateSettingsRequest(Request r); 
-/*
+
 private slots:
-    void saveSettings(); */
+    void saveSettings();
 
 private:
     void readSettings();

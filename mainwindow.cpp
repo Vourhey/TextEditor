@@ -10,6 +10,8 @@
 #include <QSettings>
 #include <QDataStream>
 
+#include <QDebug>
+
 #include "mainwindow.h"
 #include "tabwidget.h"
 #include "texteditor.h"
@@ -73,6 +75,11 @@ void MainWindow::createActions()
     openAct->setShortcut(QKeySequence::Open);
     openAct->setStatusTip(tr("Open a file"));
     connect(openAct, SIGNAL(triggered()), SLOT(openSlot()));
+
+    clearHistoryAct = new QAction(tr("Clear History"), this);
+    clearHistoryAct->setIcon(QIcon(":/images/edit-clear.png"));
+    clearHistoryAct->setStatusTip(tr("Clear the recently used files history"));
+    connect(clearHistoryAct, SIGNAL(triggered()), SLOT(clearHistorySlot()));
 
     saveAct = new QAction(tr("Save"), this);
     saveAct->setIcon(QIcon(":/images/document-save.png"));
@@ -176,12 +183,14 @@ void MainWindow::createActions()
     prevTabAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageDown));
     prevTabAct->setEnabled(false);
     prevTabAct->setStatusTip(tr("Select the previous tab"));
+    connect(prevTabAct, SIGNAL(triggered()), tabWidget, SLOT(previousTab()));
 
     nextTabAct = new QAction(tr("Next Tab"), this);
     nextTabAct->setIcon(QIcon(":/images/go-next.png"));
     nextTabAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageUp));
     nextTabAct->setEnabled(false);
     nextTabAct->setStatusTip(tr("Select the next tab"));
+    connect(nextTabAct, SIGNAL(triggered()), tabWidget, SLOT(nextTab()));
 
     gotoAct = new QAction(tr("Go to..."), this);
     gotoAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
@@ -204,7 +213,7 @@ void MainWindow::createMenus()
     m->addSeparator();
     m->addAction(openAct);
     openRecentMenu = m->addMenu(tr("Open Recent"));
-    openRecentMenu->setEnabled(false);
+    fillRecentFiles();
     m->addSeparator();
     m->addAction(saveAct);
     m->addAction(saveAsAct);
@@ -292,6 +301,24 @@ void MainWindow::openFiles(const QStringList &files)
     while(it.hasNext()) {
         tabWidget->createNewTab(it.next());
     }
+    qDebug() << files;
+    addToRecentFiles(files);
+}
+
+void MainWindow::openRecentSlot()
+{
+    QAction *act = qobject_cast<QAction*>(sender());
+    QString fileName = act->data().toString();
+    tabWidget->createNewTab(fileName);
+}
+
+void MainWindow::clearHistorySlot()
+{
+    AppSettings *s = myapp->appSettings();
+    s->beginGroup("recentfiles");
+    s->setValue("files", QStringList());
+    s->endGroup();
+    fillRecentFiles();
 }
 
 void MainWindow::saveAllSlot()
@@ -341,7 +368,8 @@ void MainWindow::gotoSlot()
 
 void MainWindow::selectFontSlot()
 {
-    QFont font = QFontDialog::getFont(0, tabWidget->editor()->document()->defaultFont(), this);
+    QFont font = tabWidget->editor()->document()->defaultFont();
+    font = QFontDialog::getFont(0, font, this);
     QByteArray ba;
     QDataStream stream(&ba, QIODevice::WriteOnly);
     stream << font;
@@ -349,10 +377,10 @@ void MainWindow::selectFontSlot()
     // write to settings new font
     // and update each texteditor
 
-    QSettings settings;
-    settings.beginGroup("texteditor");
-    settings.setValue("font", ba);
-    settings.endGroup();
+    AppSettings *settings = myapp->appSettings();
+    settings->beginGroup("texteditor");
+    settings->setValue("font", ba);
+    settings->endGroup();
 
     myapp->updateSettingsRequest(TEXTEDITOR);
 }
@@ -471,14 +499,71 @@ void MainWindow::readSettings(AppSettings *appSettings)
 
 void MainWindow::writeSettings()
 {
-    QSettings settings;
+    AppSettings *appset = myapp->appSettings();
 
-    settings.beginGroup("mainwindow");
-    settings.setValue("position", pos());
-    settings.setValue("size", size());
+    appset->beginGroup("mainwindow");
+    appset->setValue("position", pos());
+    appset->setValue("size", size());
 //    settings.setValue("isFullScreenMode", isFullScreen());
-    settings.setValue("toolBarVisible", m_toolBar->isVisible());
-    settings.setValue("statusBarVisible", m_statusBar->isVisible());
-    settings.endGroup();
+    appset->setValue("toolBarVisible", m_toolBar->isVisible());
+    appset->setValue("statusBarVisible", m_statusBar->isVisible());
+    appset->endGroup();
+}
+
+void MainWindow::fillRecentFiles()
+{
+    qWarning("MainWindow::fillRecentFiles()");
+
+    AppSettings *appset = myapp->appSettings();
+    appset->beginGroup("recentfiles");
+    QStringList files = appset->value("files", QStringList()).toStringList();
+    appset->endGroup();
+    openRecentMenu->clear();
+
+//    qDebug() << files;
+
+    if(!files.isEmpty()) {
+        foreach(QString s, files) {
+            QAction *act = new QAction(QFileInfo(s).fileName(), this);
+            act->setData(s);
+            act->setStatusTip(tr("Open \'%1\'").arg(s));
+            connect(act, SIGNAL(triggered()), SLOT(openRecentSlot()));
+            openRecentMenu->addAction(act);
+        }
+
+        openRecentMenu->addSeparator();
+        openRecentMenu->addAction(clearHistoryAct);
+        openRecentMenu->setEnabled(true);
+    } else {
+        openRecentMenu->setEnabled(false);
+    }
+}
+
+void MainWindow::addToRecentFiles(const QStringList &list)
+{
+    qWarning("MainWindow::addToRecentFiles");
+
+    AppSettings *appset = myapp->appSettings();
+
+    appset->beginGroup("recentfiles");
+    QStringList files = appset->value("files", QStringList()).toStringList();
+
+//    qDebug() << files;
+
+    foreach(QString s, list) {
+        files.prepend(s);
+    }
+
+    files.removeDuplicates();
+//    qDebug() << files;
+
+    while(files.count() > 10) {
+        files.removeLast();
+    }
+
+    appset->setValue("files", files);
+    appset->endGroup();
+
+    fillRecentFiles();
 }
 

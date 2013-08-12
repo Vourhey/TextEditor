@@ -19,6 +19,9 @@ TextEditor::TextEditor(QWidget *parent)
 
     qWarning("create TextEditor");
 
+    QDataStream stream(&defaultFont, QIODevice::WriteOnly);
+    stream << QFont("Monospace", 9);
+
     readSettings(myapp->appSettings());
 }
 
@@ -115,20 +118,12 @@ void TextEditor::readSettings(AppSettings *settings)
 {
     qWarning("in TextEditor::readSettings()");
 
-    QByteArray defaultFont;
-    QDataStream stream(&defaultFont, QIODevice::WriteOnly);
-    stream << QFont("Monospace", 9);
-
-    qWarning("before \"beginGroup\"");
-
     settings->beginGroup("texteditor");
 
     QFont font;
-    qWarning("try get value");
     QByteArray ba = settings->value("font", defaultFont).toByteArray();
     QDataStream out(ba);
     out >> font;
-    qWarning("try set value");
     document()->setDefaultFont(font);
 
     settings->endGroup();

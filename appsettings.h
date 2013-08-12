@@ -18,6 +18,8 @@ public:
     void beginGroup(const QString &group);
     void endGroup();
 
+    void saveSettings();
+
 private:
     QString prependGroup;
     QHash<QString, QVariant> settings;

@@ -30,6 +30,7 @@ private:
     void setFileName(const QString &fileName);
 
     static unsigned int number;     // counter
+    QByteArray defaultFont;
 
     QString currentFile;
     QString titleName;

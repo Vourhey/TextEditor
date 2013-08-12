@@ -26,15 +26,12 @@ Application::Application(int argc, char **argv)
         mainWindows[0]->openFiles(files);
     }
 
-//    connect(this, SIGNAL(lastWindowClosed()), SLOT(saveSettings()));
-   
-    qWarning("%p", this); 
-    qWarning("%p", m_app);
+    connect(this, SIGNAL(lastWindowClosed()), SLOT(saveSettings()));
 }
 
 Application *Application::instance()
 {
-    qWarning("%p", m_app);
+//    qWarning("get instance %p", m_app);
     return m_app;
 }
 
@@ -66,11 +63,11 @@ void Application::removeTextEditor(TextEditor *editor)
     }
 }
 
-/*
 void Application::saveSettings()
 {
+    settings->saveSettings();
+    delete settings;
 }
-*/
 
 void Application::readSettings()
 {
@@ -80,16 +77,14 @@ void Application::readSettings()
     QStringList keys = s.allKeys();
 
     foreach(QString k, keys) {
-        qWarning("%s", qPrintable(k));
-        qDebug() << s.value(k);
+//        qWarning("%s", qPrintable(k));
+//        qDebug() << s.value(k);
         settings->setValue(k, s.value(k));
     }
 }
 
 void Application::updateSettingsRequest(Request r)
 {
-    readSettings();
-
     if(r == MAINWINDOW) {
         foreach(MainWindow *mw, mainWindows) {
             mw->readSettings(settings);

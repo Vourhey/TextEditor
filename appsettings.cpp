@@ -1,5 +1,5 @@
-#include <QDebug>
-
+//#include <QDebug>
+#include <QSettings>
 #include "appsettings.h"
 
 AppSettings::AppSettings()
@@ -8,7 +8,7 @@ AppSettings::AppSettings()
 
 QVariant AppSettings::value(const QString &key, const QVariant &defaultValue)
 {
-    qDebug() << prependGroup + key;
+//    qDebug() << prependGroup + key;
 
     if(settings.contains(prependGroup + key)) {
         return settings[prependGroup + key];
@@ -19,7 +19,7 @@ QVariant AppSettings::value(const QString &key, const QVariant &defaultValue)
 
 void AppSettings::setValue(const QString &key, const QVariant &val)
 {
-    qDebug() << prependGroup + key;
+//    qDebug() << prependGroup + key;
 
     settings.insert(prependGroup + key, val);
 }
@@ -32,5 +32,14 @@ void AppSettings::beginGroup(const QString &group)
 void AppSettings::endGroup()
 {
     prependGroup = "";
+}
+
+void AppSettings::saveSettings()
+{
+    QSettings s;
+    
+    foreach(QString key, settings.keys()) {
+        s.setValue(key, settings[key]);
+    }
 }
 

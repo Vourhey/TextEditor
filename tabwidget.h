@@ -42,6 +42,8 @@ public:
 
 public slots:
     void closeTabAt(int i = -1);
+    void nextTab();
+    void previousTab();
 
 private slots:
     void updateTitle();
@@ -49,6 +51,7 @@ private slots:
 private:
     TextEditor *cWidget;
 //        *prevWidget;
+    TabBar *m_tabBar;
 };
 
 #endif // TABWIDGET_H

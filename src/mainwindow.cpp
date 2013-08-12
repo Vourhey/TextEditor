@@ -170,12 +170,12 @@ void MainWindow::createActions()
 
     toolBarAct = new QAction(tr("Toolbar"), this);
     toolBarAct->setCheckable(true);
-    toolBarAct->setChecked(true);
+//    toolBarAct->setChecked(true);
     toolBarAct->setStatusTip(tr("Change the visibility of the toolbar"));
 
     statusBarAct = new QAction(tr("Statusbar"), this);
     statusBarAct->setCheckable(true);
-    statusBarAct->setChecked(true);
+//    statusBarAct->setChecked(true);
     statusBarAct->setStatusTip(tr("Change the visibility of the statusbar"));
 
     prevTabAct = new QAction(tr("Previous Tab"), this);
@@ -493,6 +493,14 @@ void MainWindow::readSettings(AppSettings *appSettings)
 
     move(appSettings->value("position", QPoint(200, 200)).toPoint());
     resize(appSettings->value("size", QSize(450, 300)).toSize());
+
+    bool toolBarVisible = appSettings->value("toolBarVisible", true).toBool();
+    m_toolBar->setVisible(toolBarVisible);
+    toolBarAct->setChecked(toolBarVisible);
+
+    bool statusBarVisible = appSettings->value("statusBarVisible", true).toBool();
+    m_statusBar->setVisible(statusBarVisible);
+    statusBarAct->setChecked(statusBarVisible);
 
     appSettings->endGroup();
 }

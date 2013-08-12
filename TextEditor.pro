@@ -26,22 +26,22 @@ CONFIG(release, debug|release) {
 
 RESOURCES = images.qrc
 
-SOURCES = main.cpp      \
-    mainwindow.cpp      \
-    tabwidget.cpp       \
-    texteditor.cpp      \
-    findwidget.cpp      \
-    application.cpp     \
-    gotodialog.cpp      \
-    findandreplace.cpp  \
-    appsettings.cpp
+SOURCES = src/main.cpp      \
+    src/mainwindow.cpp      \
+    src/tabwidget.cpp       \
+    src/texteditor.cpp      \
+    src/findwidget.cpp      \
+    src/application.cpp     \
+    src/gotodialog.cpp      \
+    src/findandreplace.cpp  \
+    src/appsettings.cpp
 
-HEADERS = mainwindow.h  \
-    tabwidget.h         \
-    texteditor.h        \
-    findwidget.h        \
-    application.h       \
-    gotodialog.h        \
-    findandreplace.h    \
-    appsettings.h
+HEADERS = src/mainwindow.h  \
+    src/tabwidget.h         \
+    src/texteditor.h        \
+    src/findwidget.h        \
+    src/application.h       \
+    src/gotodialog.h        \
+    src/findandreplace.h    \
+    src/appsettings.h
 

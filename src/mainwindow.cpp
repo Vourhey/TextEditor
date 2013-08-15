@@ -213,7 +213,7 @@ void MainWindow::createMenus()
     m->addSeparator();
     m->addAction(openAct);
     openRecentMenu = m->addMenu(tr("Open Recent"));
-    fillRecentFiles();
+//    fillRecentFiles();
     m->addSeparator();
     m->addAction(saveAct);
     m->addAction(saveAsAct);
@@ -353,6 +353,7 @@ void MainWindow::findAndReplaceSlot()
         m_findAndReplace = new FindAndReplace;
     }
 
+    m_findAndReplace->setEditor(tabWidget->editor());
     m_findAndReplace->show();
 }
 
@@ -501,6 +502,8 @@ void MainWindow::readSettings(AppSettings *appSettings)
     bool statusBarVisible = appSettings->value("statusBarVisible", true).toBool();
     m_statusBar->setVisible(statusBarVisible);
     statusBarAct->setChecked(statusBarVisible);
+
+    fillRecentFiles();
 
     appSettings->endGroup();
 }

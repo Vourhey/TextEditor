@@ -21,8 +21,12 @@ FindAndReplace::FindAndReplace(QWidget *parent)
 /*
     // how to make it right? I don't know... 
     // I'll back to this question later
-    findBox->setStyleSheet("QComboBox { background: red }");
-*/
+//    findBox->setStyleSheet("QComboBox { background-color: red }");
+    findBox->setAutoFillBackground(true);
+    QPalette pal = findBox->palette();
+    pal.setColor(findBox->backgroundRole(), Qt::red);
+    findBox->setPalette(pal);
+// */
 
     replaceBox = new QComboBox;
     replaceBox->setEditable(true);
@@ -119,22 +123,45 @@ void FindAndReplace::setEditor(TextEditor *editor)
 
 bool FindAndReplace::findSlot()
 {
-    if(findBox->currentText().isEmpty()) {
+    qWarning("FindAndReplace::findSlot()");
+
+    QString findString = findBox->currentText();
+
+    if(findString.isEmpty()) {
         // make red background
         return false;
     }
+
+    QTextDocument::FindFlags ff;
+    if(caseSenseCheck->isChecked()) {
+        ff |= QTextDocument::FindCaseSensitively;
+    }
+    if(wholeWordCheck->isChecked()) {
+        ff |= QTextDocument::FindWholeWords;
+    }
+
+    qWarning("%p", m_editor);
+
+    QTextDocument *doc = m_editor->document();
+    QTextCursor tc = m_editor->textCursor();
+    tc.setPosition(tc.selectionStart());
+    tc = doc->find(findString, tc, ff);
+    m_editor->setTextCursor(tc);
 
     return true;
 }
 
 void FindAndReplace::replaceSlot()
 {
-    // QTextDocument *doc = m_editor->document();
+    QTextCursor tc = m_editor->textCursor();
 
-    if(!m_editor->textCursor().hasSelection()) {
+    if(!tc.hasSelection()) {
         if(!findSlot()) {
             return;
         }
     }
+
+    QString replaceString = replaceBox->currentText();
+    tc.insertText(replaceString);
 }
 

@@ -88,13 +88,13 @@ void FindWidget::updateFind()
 
     QTextDocument::FindFlags ff;
 
-    if(findString.isEmpty()) {
+/*    if(findString.isEmpty()) {
         nextButton->setEnabled(false);
         prevButton->setEnabled(false);
-    } else {
+    } else { */
         nextButton->setEnabled(true);
         prevButton->setEnabled(true);
-    }
+//    }
 
     if(highlightAllButton->isChecked()) {
         QTextCursor tc = m_editor->textCursor();

@@ -4,6 +4,7 @@
 #include <QPlainTextEdit>
 
 class AppSettings;
+class LineNumbers;
 
 class TextEditor : public QPlainTextEdit
 {
@@ -17,6 +18,10 @@ public:
 
     void readSettings(AppSettings *settings);
 
+    // for LineNumbers
+    void lineNumbersPaintEvent(QPaintEvent *event);
+    int lineNumbersWidth();
+
 public slots:
     bool save();
     bool saveAs();
@@ -24,6 +29,13 @@ public slots:
 
 signals:
     void fileNameChanged();
+
+protected:
+    void resizeEvent(QResizeEvent *event);
+
+private slots:
+    void updateLineNumberAreaWidth(int newBlockCount);
+    void updateLineNumberArea(const QRect &, int);
 
 private:
     bool saveFile(const QString &fileName);
@@ -34,6 +46,28 @@ private:
 
     QString currentFile;
     QString titleName;
+    
+    QWidget *lineNumberArea;
+};
+
+class LineNumbers : public QWidget
+{
+public:
+    LineNumbers(TextEditor *editor) : QWidget(editor) {
+        m_editor = editor;
+    }
+
+    QSize sizeHint() const {
+        return QSize(m_editor->lineNumbersWidth(), 0);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) {
+        m_editor->lineNumbersPaintEvent(event);
+    }
+
+private:
+    TextEditor *m_editor;
 };
 
 #endif // TEXTEDITOR_H

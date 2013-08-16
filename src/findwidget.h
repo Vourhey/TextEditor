@@ -2,12 +2,13 @@
 #define FINDWIDGET_H
 
 #include <QToolBar>
+#include <QTextDocument>
 
 class TextEditor;
-class QToolButton;
+//class QToolButton;
+class QAction;
 class QLineEdit;
 class QCheckBox;
-class QTextDocument;
 
 class FindWidget : public QToolBar
 {
@@ -32,7 +33,7 @@ private:
     QTextDocument *doc;
     QString findString;
 
-    QToolButton *closeButton,
+    QAction *closeButton,
         *nextButton,
         *prevButton,
         *highlightAllButton;

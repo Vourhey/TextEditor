@@ -9,3 +9,4 @@ In directory with sources:
 qmake && make
 ```
 You'll get `TextEditor` file for launch.
+

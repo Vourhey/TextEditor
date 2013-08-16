@@ -24,14 +24,9 @@ TextEditor::TextEditor(QWidget *parent)
     QDataStream stream(&defaultFont, QIODevice::WriteOnly);
     stream << QFont("Monospace", 9);
 
+    lineNumberArea = 0;
+
     readSettings(myapp->appSettings());
-
-    lineNumberArea = new LineNumbers(this);
-
-    connect(this, SIGNAL(blockCountChanged(int)), SLOT(updateLineNumberAreaWidth(int)));
-    connect(this, SIGNAL(updateRequest(QRect,int)), SLOT(updateLineNumberArea(QRect,int)));
-
-    updateLineNumberAreaWidth(0);
 }
 
 void TextEditor::loadFile(const QString &fileName)
@@ -123,6 +118,26 @@ void TextEditor::deleteSlot()
     setTextCursor(cur);
 }
 
+void TextEditor::lineNumberVisible()
+{
+    if(lineNumberBool) {
+        if(!lineNumberArea) {
+            lineNumberArea = new LineNumbers(this);
+
+            connect(this, SIGNAL(blockCountChanged(int)), SLOT(updateLineNumberAreaWidth(int)));
+            connect(this, SIGNAL(updateRequest(QRect,int)), SLOT(updateLineNumberArea(QRect,int)));
+        }
+
+        lineNumberArea->setVisible(true);
+        updateLineNumberAreaWidth(0);
+    } else {
+        if(lineNumberArea) {
+            lineNumberArea->setVisible(false);
+            setViewportMargins(0, 0, 0, 0);
+       }
+    }
+}
+
 int TextEditor::lineNumbersWidth()
 {
     int digits = 1;
@@ -160,7 +175,9 @@ void TextEditor::resizeEvent(QResizeEvent *e)
     QPlainTextEdit::resizeEvent(e);
 
     QRect cr = contentsRect();
-    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumbersWidth(), cr.height()));
+    if(lineNumberArea) {
+        lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumbersWidth(), cr.height()));
+    }
 }
 
 void TextEditor::lineNumbersPaintEvent(QPaintEvent *event)
@@ -189,7 +206,7 @@ void TextEditor::lineNumbersPaintEvent(QPaintEvent *event)
 
 void TextEditor::readSettings(AppSettings *settings)
 {
-    qWarning("in TextEditor::readSettings()");
+    qWarning("TextEditor::readSettings()");
 
     settings->beginGroup("texteditor");
 
@@ -198,6 +215,10 @@ void TextEditor::readSettings(AppSettings *settings)
     QDataStream out(ba);
     out >> font;
     document()->setDefaultFont(font);
+
+    lineNumberBool = settings->value("linenumbers", false).toBool();
+    qWarning("for %p lineNumberBool is %d", this, lineNumberBool);
+    lineNumberVisible();
 
     settings->endGroup();
 }

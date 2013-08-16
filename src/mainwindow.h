@@ -36,6 +36,7 @@ private slots:
     void saveAllSlot();
     void findSlot();
     void findAndReplaceSlot();
+    void lineNumbersSlot(bool v);
     void gotoSlot();
     void selectFontSlot();
     void updateActsSlot(int i);

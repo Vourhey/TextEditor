@@ -21,6 +21,7 @@ protected:
     void keyReleaseEvent(QKeyEvent *event);
 
 private slots:
+    void findWhileInputSlot(const QString &str);
     bool findSlot();
     void replaceSlot();
 

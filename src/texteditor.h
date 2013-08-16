@@ -41,12 +41,15 @@ private:
     bool saveFile(const QString &fileName);
     void setFileName(const QString &fileName);
 
+    void lineNumberVisible();
+
     static unsigned int number;     // counter
     QByteArray defaultFont;
 
     QString currentFile;
     QString titleName;
-    
+
+    bool lineNumberBool;    
     QWidget *lineNumberArea;
 };
 

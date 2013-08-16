@@ -52,6 +52,7 @@ FindAndReplace::FindAndReplace(QWidget *parent)
     cancelButton = new QPushButton(tr("Cancel"));
 
     connect(findButton, SIGNAL(clicked()), SLOT(findSlot()));
+    connect(findBox, SIGNAL(editTextChanged(const QString&)), SLOT(findWhileInputSlot(const QString&)));
     connect(replaceButton, SIGNAL(clicked()), SLOT(replaceSlot()));
     connect(replaceAllCheck, SIGNAL(toggled(bool)), whereReplaceBox, SLOT(setEnabled(bool)));
     connect(cancelButton, SIGNAL(clicked()), SLOT(hide()));
@@ -121,6 +122,30 @@ void FindAndReplace::setEditor(TextEditor *editor)
     m_editor = editor;
 }
 
+void FindAndReplace::findWhileInputSlot(const QString &str)
+{
+    qWarning("FindAndReplace::findWhileInputSlot()");
+
+    if(str.isEmpty()) {
+        return;
+    }
+
+    QTextDocument::FindFlags ff;
+    if(caseSenseCheck->isChecked()) {
+        ff |= QTextDocument::FindCaseSensitively;
+    }
+    if(wholeWordCheck->isChecked()) {
+        ff |= QTextDocument::FindWholeWords;
+    }
+
+    QTextDocument *doc = m_editor->document();
+    QTextCursor tc = m_editor->textCursor();
+    tc.setPosition(tc.selectionStart());
+    tc = doc->find(str, tc, ff);
+    m_editor->setTextCursor(tc);
+
+}
+
 bool FindAndReplace::findSlot()
 {
     qWarning("FindAndReplace::findSlot()");
@@ -144,7 +169,7 @@ bool FindAndReplace::findSlot()
 
     QTextDocument *doc = m_editor->document();
     QTextCursor tc = m_editor->textCursor();
-    tc.setPosition(tc.selectionStart());
+//    tc.setPosition(tc.selectionStart());
     tc = doc->find(findString, tc, ff);
     m_editor->setTextCursor(tc);
 
@@ -161,6 +186,7 @@ void FindAndReplace::replaceSlot()
         }
     }
 
+    tc = m_editor->textCursor();
     QString replaceString = replaceBox->currentText();
     tc.insertText(replaceString);
 }

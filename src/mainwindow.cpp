@@ -167,6 +167,7 @@ void MainWindow::createActions()
     lineNumbersAct = new QAction(tr("Line Numbers"), this);
     lineNumbersAct->setCheckable(true);
     lineNumbersAct->setStatusTip(tr("Show line numbers"));
+    connect(lineNumbersAct, SIGNAL(toggled(bool)), SLOT(lineNumbersSlot(bool)));
 
     toolBarAct = new QAction(tr("Toolbar"), this);
     toolBarAct->setCheckable(true);
@@ -357,6 +358,17 @@ void MainWindow::findAndReplaceSlot()
     m_findAndReplace->show();
 }
 
+void MainWindow::lineNumbersSlot(bool v)
+{
+    AppSettings *appset = myapp->appSettings();
+
+    appset->beginGroup("texteditor");
+    appset->setValue("linenumbers", v);
+    appset->endGroup();
+
+    myapp->updateSettingsRequest(TEXTEDITOR);
+}
+
 void MainWindow::gotoSlot()
 {
     if(!m_gotoDialog) {
@@ -485,7 +497,10 @@ void MainWindow::updateActsSlot(int i)
 
 void MainWindow::aboutSlot()
 {
-    QMessageBox::about(this, tr("TextEditor"), tr("About this programm"));
+    QMessageBox::about(this, tr("TextEditor"), 
+            tr("<b>TextEditor 0.1.0</b><br>"
+               "TextEditor is a simple text editor<br>"
+               "<a href=\'https://github.com/Vourhey/TextEditor\'>https://github.com/Vourhey/TextEditor</a>"));
 }
 
 void MainWindow::readSettings(AppSettings *appSettings)
@@ -505,6 +520,10 @@ void MainWindow::readSettings(AppSettings *appSettings)
 
     fillRecentFiles();
 
+    appSettings->endGroup();
+
+    appSettings->beginGroup("texteditor");
+    lineNumbersAct->setChecked(appSettings->value("linenumbers", false).toBool());
     appSettings->endGroup();
 }
 
@@ -548,6 +567,8 @@ void MainWindow::fillRecentFiles()
     } else {
         openRecentMenu->setEnabled(false);
     }
+
+    qWarning("the end of MainWindow::fillRecentFiles()");
 }
 
 void MainWindow::addToRecentFiles(const QStringList &list)

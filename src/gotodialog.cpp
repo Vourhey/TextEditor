@@ -11,15 +11,16 @@ GotoDialog::GotoDialog(QWidget *parent)
     : QDialog(parent)
 {
     lineSpin = new QSpinBox;
-    lineSpin->setValue(1);
-    connect(lineSpin, SIGNAL(valueChanged(int)), SLOT(updateColumnSpin(int)));
-
+    lineSpin->setMinimum(1);
     columnSpin = new QSpinBox;
+    columnSpin->setMinimum(1);
+    connect(lineSpin, SIGNAL(valueChanged(int)), SLOT(updateColumnSpin(int)));
 
     cancelButton = new QPushButton(tr("Cancel"));
     connect(cancelButton, SIGNAL(clicked()), SLOT(reject()));
 
     jumpButton = new QPushButton(tr("Jump to"));
+    jumpButton->setDefault(true);
     connect(jumpButton, SIGNAL(clicked()), SLOT(jump()));
 
     QGridLayout *mainLayout = new QGridLayout;
@@ -42,13 +43,14 @@ void GotoDialog::setEditor(TextEditor *editor)
 {
     m_editor = editor;
     lineSpin->setMaximum(m_editor->blockCount());
+    lineSpin->setValue(1);
 }
 
 void GotoDialog::jump()
 {
-    QTextBlock block = m_editor->document()->findBlockByLineNumber(lineSpin->value());
+    QTextBlock block = m_editor->document()->findBlockByLineNumber(lineSpin->value() - 1);
     int p = block.position();
-    p += columnSpin->value();
+    p += columnSpin->value() - 1;
 
     QTextCursor tc = m_editor->textCursor();
     tc.setPosition(p);
@@ -59,7 +61,7 @@ void GotoDialog::jump()
 
 void GotoDialog::updateColumnSpin(int line)
 {
-    QTextBlock block = m_editor->document()->findBlockByLineNumber(line);
+    QTextBlock block = m_editor->document()->findBlockByLineNumber(line - 1);
     columnSpin->setMaximum(block.text().length());
 }
 

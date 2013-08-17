@@ -91,13 +91,20 @@ TabWidget::TabWidget(QWidget *parent)
 
 TextEditor *TabWidget::createNewTab(const QString &name)
 {
-    cWidget = myapp->addTextEditor();
+    int i = currentIndex();
+
+    if(i != -1 && editor()->isNull()) {
+        cWidget = editor(i);
+    } else {
+        cWidget = myapp->addTextEditor();
+        connect(cWidget, SIGNAL(fileNameChanged()), SLOT(updateTitle()));
+        i = addTab(cWidget, cWidget->showName());
+    }
+
     if(!name.isEmpty()) {
         cWidget->loadFile(name);
     }
-    connect(cWidget, SIGNAL(fileNameChanged()), SLOT(updateTitle()));
 
-    int i = addTab(cWidget, cWidget->showName());
     setCurrentIndex(i);
     cWidget->setFocus();
 

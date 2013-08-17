@@ -209,7 +209,7 @@ void MainWindow::createMenus()
 {
     QMenuBar *mBar = menuBar();
 
-    QMenu *m = mBar->addMenu(tr("File"));
+    QMenu *m = mBar->addMenu(tr("&File"));
     m->addAction(newAct);
     m->addSeparator();
     m->addAction(openAct);
@@ -223,7 +223,7 @@ void MainWindow::createMenus()
     m->addAction(closeTabAct);
     m->addAction(quitAct);
 
-    m = mBar->addMenu(tr("Edit"));
+    m = mBar->addMenu(tr("&Edit"));
     m->addAction(undoAct);
     m->addAction(redoAct);
     m->addSeparator();
@@ -239,21 +239,21 @@ void MainWindow::createMenus()
     m->addAction(findPrevAct);
     m->addAction(findAndReplaceAct);
 
-    m = mBar->addMenu(tr("View"));
+    m = mBar->addMenu(tr("&View"));
     m->addAction(selectFontAct);
     m->addSeparator();
     m->addAction(lineNumbersAct);
     m->addAction(toolBarAct);
     m->addAction(statusBarAct);
 
-    m = mBar->addMenu(tr("Navigation"));
+    m = mBar->addMenu(tr("&Navigation"));
     m->addAction(prevTabAct);
     m->addAction(nextTabAct);
     m->addSeparator();
 //    m->addSeparator();
     m->addAction(gotoAct);
 
-    m = mBar->addMenu(tr("Help"));
+    m = mBar->addMenu(tr("&Help"));
     m->addAction(aboutAct);
 }
 

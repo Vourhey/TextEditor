@@ -15,6 +15,7 @@ public:
     QString showName() const;
     void loadFile(const QString &fileName);
     bool isSave();
+    bool isNull();
 
     void readSettings(AppSettings *settings);
 

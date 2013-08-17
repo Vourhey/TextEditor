@@ -33,7 +33,7 @@ void TextEditor::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning("Can not open file %s", qPrintable(fileName));
+        QMessageBox::warning(this, "Warning", tr("Can not open file %1").arg(fileName));
         return;
     }
 
@@ -77,6 +77,11 @@ bool TextEditor::isSave()
     return true;
 }
 
+bool TextEditor::isNull()
+{
+    return currentFile.isEmpty() && toPlainText().isEmpty();
+}
+
 bool TextEditor::save()
 {
     if(!currentFile.isEmpty()) {
@@ -100,7 +105,7 @@ bool TextEditor::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if(!file.open(QIODevice::Text | QIODevice::WriteOnly)) {
-        qWarning("Can not write to %s", qPrintable(fileName));
+        QMessageBox::warning(this, "TextEditor", tr("Can not write to %1").arg(fileName));
         return false;
     }
 

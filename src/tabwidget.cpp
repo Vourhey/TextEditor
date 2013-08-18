@@ -93,7 +93,7 @@ TextEditor *TabWidget::createNewTab(const QString &name)
 {
     int i = currentIndex();
 
-    if(i != -1 && editor()->isNull()) {
+    if(i != -1 && editor()->isNull() && !name.isEmpty()) {
         cWidget = editor(i);
     } else {
         cWidget = myapp->addTextEditor();
@@ -196,5 +196,6 @@ void TabWidget::updateTitle()
 
     int i = indexOf(te);
     setTabText(i, te->showName());
+    emit fileNameChanged(i);
 }
 

@@ -7,22 +7,23 @@
 #include <QSpacerItem>
 #include <QTextDocument>
 
+#include "application.h"
 #include "findandreplace.h"
 #include "texteditor.h"
 
 FindAndReplace::FindAndReplace(QWidget *parent)
-    : QWidget(parent)
+    : QDialog(parent)
 {
     m_editor = 0;
 
     findBox = new QComboBox;
     findBox->setEditable(true);
 
-/*
+
     // how to make it right? I don't know... 
     // I'll back to this question later
-//    findBox->setStyleSheet("QComboBox { background-color: red }");
-    findBox->setAutoFillBackground(true);
+//    findBox->setStyleSheet("QLineEdit { background-color: red; }");
+/*    findBox->setAutoFillBackground(true);
     QPalette pal = findBox->palette();
     pal.setColor(findBox->backgroundRole(), Qt::red);
     findBox->setPalette(pal);
@@ -48,6 +49,7 @@ FindAndReplace::FindAndReplace(QWidget *parent)
     whereReplaceBox->setEnabled(false);
 
     findButton = new QPushButton(tr("Find"));
+    findButton->setDefault(true);
     replaceButton = new QPushButton(tr("Replace"));
     cancelButton = new QPushButton(tr("Cancel"));
 
@@ -91,7 +93,7 @@ void FindAndReplace::createUI()
     QVBoxLayout *vLayout_checkes = new QVBoxLayout;
     vLayout_checkes->addWidget(caseSenseCheck);
     vLayout_checkes->addWidget(wholeWordCheck);
-    vLayout_checkes->addLayout(whereReplaceLayout);
+//    vLayout_checkes->addLayout(whereReplaceLayout);
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout;
     spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -139,11 +141,23 @@ void FindAndReplace::findWhileInputSlot(const QString &str)
     }
 
     QTextDocument *doc = m_editor->document();
+    qWarning("doc's text: %s", qPrintable(doc->toPlainText()));
     QTextCursor tc = m_editor->textCursor();
+    qWarning("tc is null: %d", tc.isNull());
     tc.setPosition(tc.selectionStart());
     tc = doc->find(str, tc, ff);
-    m_editor->setTextCursor(tc);
 
+    if(tc.isNull()) {
+        tc = m_editor->textCursor();
+        tc.setPosition(0);
+        tc = doc->find(str, tc, ff);
+        if(tc.isNull()) {   // there is no str
+            // make red background
+        }
+    }
+
+    qWarning("tc is null: %d", tc.isNull());
+    m_editor->setTextCursor(tc);
 }
 
 bool FindAndReplace::findSlot()
@@ -164,6 +178,9 @@ bool FindAndReplace::findSlot()
     if(wholeWordCheck->isChecked()) {
         ff |= QTextDocument::FindWholeWords;
     }
+    if(directionBox->currentIndex() == 0) { // Up
+        ff |= QTextDocument::FindBackward;
+    }
 
     qWarning("%p", m_editor);
 
@@ -171,6 +188,15 @@ bool FindAndReplace::findSlot()
     QTextCursor tc = m_editor->textCursor();
 //    tc.setPosition(tc.selectionStart());
     tc = doc->find(findString, tc, ff);
+
+    if(tc.isNull()) {
+        tc = m_editor->textCursor();
+        if(directionBox->currentIndex() == 2) { // Both
+            tc.setPosition(0);
+            tc = doc->find(findString, tc, ff);
+        }
+    }
+
     m_editor->setTextCursor(tc);
 
     return true;
@@ -189,5 +215,7 @@ void FindAndReplace::replaceSlot()
     tc = m_editor->textCursor();
     QString replaceString = replaceBox->currentText();
     tc.insertText(replaceString);
+
+    findSlot();
 }
 

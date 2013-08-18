@@ -1,7 +1,7 @@
 #ifndef FINDANDREPLACE_H
 #define FINDANDREPLACE_H
 
-#include <QWidget>
+#include <QDialog>
 
 class QComboBox;
 class QCheckBox;
@@ -9,7 +9,7 @@ class QPushButton;
 
 class TextEditor;
 
-class FindAndReplace : public QWidget
+class FindAndReplace : public QDialog
 {
     Q_OBJECT
 public:

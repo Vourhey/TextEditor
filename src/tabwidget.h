@@ -45,6 +45,9 @@ public slots:
     void nextTab();
     void previousTab();
 
+signals:
+    void fileNameChanged(int);
+
 private slots:
     void updateTitle();
 

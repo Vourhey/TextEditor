@@ -40,6 +40,7 @@ private slots:
     void gotoSlot();
     void selectFontSlot();
     void updateActsSlot(int i);
+    void updateWindowTitle(int i);
     void aboutSlot();
 
 private:

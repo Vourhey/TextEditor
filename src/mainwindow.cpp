@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     createStatusBar();
 
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(updateActsSlot(int)));
+    connect(tabWidget, SIGNAL(fileNameChanged(int)), SLOT(updateWindowTitle(int)));
     tabWidget->createNewTab();
 }
 
@@ -351,7 +352,7 @@ void MainWindow::findSlot()
 void MainWindow::findAndReplaceSlot()
 {
     if(!m_findAndReplace) {
-        m_findAndReplace = new FindAndReplace;
+        m_findAndReplace = new FindAndReplace(this);
     }
 
     m_findAndReplace->setEditor(tabWidget->editor());
@@ -492,6 +493,12 @@ void MainWindow::updateActsSlot(int i)
         }
     }
 
+    setWindowTitle(QString("%1 - TextEditor").arg(te->showName()));
+}
+
+void MainWindow::updateWindowTitle(int i)
+{
+    TextEditor *te = tabWidget->editor(i);
     setWindowTitle(QString("%1 - TextEditor").arg(te->showName()));
 }
 

@@ -4,7 +4,6 @@
 #include "application.h"
 #include "mainwindow.h"
 #include "texteditor.h"
-#include "appsettings.h"
 
 Application *Application::m_app = 0;
 
@@ -27,6 +26,14 @@ Application::Application(int argc, char **argv)
     }
 
     connect(this, SIGNAL(lastWindowClosed()), SLOT(saveSettings()));
+}
+
+Application::~Application()
+{
+    foreach(MainWindow *w, mainWindows) {
+        qWarning("delete %p window", w);
+        delete w;
+    }
 }
 
 Application *Application::instance()

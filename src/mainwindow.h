@@ -20,7 +20,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     MainWindow(QWidget *parent = 0);
-    ~MainWindow();
 
     void openFiles(const QStringList &files);
     void readSettings(AppSettings *appSettings);

@@ -19,7 +19,6 @@
 #include "gotodialog.h"
 #include "findandreplace.h"
 #include "application.h"
-#include "appsettings.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -41,21 +40,18 @@ MainWindow::MainWindow(QWidget *parent)
     tabWidget->createNewTab();
 }
 
-MainWindow::~MainWindow()
-{
-    if(m_findWidget) {
-        delete m_findWidget;
-    }
-
-    if(m_findAndReplace) {
-        delete m_findAndReplace;
-    }
-}
-
 void MainWindow::closeEvent(QCloseEvent *ev)
 {
     if(tabWidget->closeAll()) {
         qWarning("I'm in closeEvent()");
+        if(m_findWidget) {
+            delete m_findWidget;
+        }
+
+        if(m_findAndReplace) {
+            qWarning("delete m_findAndReplace");
+            delete m_findAndReplace;
+        }
         writeSettings();
         ev->accept();
     } else {

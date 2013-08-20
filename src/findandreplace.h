@@ -14,6 +14,7 @@ class FindAndReplace : public QDialog
     Q_OBJECT
 public:
     FindAndReplace(QWidget *parent = 0);
+    ~FindAndReplace();
 
     void setEditor(TextEditor *editor);
 
@@ -21,12 +22,14 @@ protected:
     void keyReleaseEvent(QKeyEvent *event);
 
 private slots:
-    void findWhileInputSlot(const QString &str);
+    void findWhileInputSlot(const QString &str = QString());
     bool findSlot();
     void replaceSlot();
 
 private:
     void createUI();
+    void setError(bool b);
+    void readSettings();
     
     QComboBox *findBox,
         *replaceBox,
@@ -42,6 +45,9 @@ private:
         *cancelButton;
 
     TextEditor *m_editor;
+
+    QStringList findList,
+        replaceList;
 };
 
 #endif // FINDANDREPLACE_H

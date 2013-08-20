@@ -3,12 +3,12 @@
 
 #include <QApplication>
 #include <QList>
+#include "appsettings.h"
 
 #define myapp Application::instance()
 
 class MainWindow;
 class TextEditor;
-class AppSettings;
 
 enum Request {
     MAINWINDOW,
@@ -20,6 +20,7 @@ class Application : public QApplication
     Q_OBJECT
 public:
     Application(int argc, char **argv);
+    ~Application();
 
     static Application *instance();
     AppSettings *appSettings() const;

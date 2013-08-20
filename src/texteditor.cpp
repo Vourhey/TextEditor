@@ -7,7 +7,6 @@
 #include <QTextBlock>
 
 #include "application.h"
-#include "appsettings.h"
 #include "texteditor.h"
 
 unsigned int TextEditor::number = 1;

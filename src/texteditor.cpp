@@ -40,6 +40,7 @@ void TextEditor::loadFile(const QString &fileName)
     setPlainText(stream.readAll());
 
     setFileName(fileName);
+    addToRecentFiles(fileName);
 }
 
 QString TextEditor::showName() const
@@ -121,6 +122,25 @@ void TextEditor::deleteSlot()
     cur.removeSelectedText();
     setTextCursor(cur);
 }
+
+void TextEditor::addToRecentFiles(const QString &fileName)
+{
+    AppSettings *appset = myapp->appSettings();
+
+    appset->beginGroup("recentfiles");
+    QStringList files = appset->value("files", QStringList()).toStringList();
+
+    files.prepend(fileName);
+    files.removeDuplicates();
+
+    while(files.count() > 10) {
+        files.removeLast();
+    }
+
+    appset->setValue("files", files);
+    appset->endGroup();
+}
+
 
 void TextEditor::lineNumberVisible()
 {

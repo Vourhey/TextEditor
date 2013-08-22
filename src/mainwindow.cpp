@@ -67,6 +67,11 @@ void MainWindow::createActions()
     newAct->setStatusTip(tr("Create a new document"));
     connect(newAct, SIGNAL(triggered()), SLOT(newSlot()));
 
+    newWindowAct = new QAction(tr("New Window"), this);
+    newWindowAct->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_N));
+    newWindowAct->setStatusTip(tr("Create a new document in a new window"));
+    connect(newWindowAct, SIGNAL(triggered()), SLOT(newWindowSlot()));
+
     openAct = new QAction(tr("Open"), this);
     openAct->setIcon(QIcon(":/images/document-open.png"));
     openAct->setShortcut(QKeySequence::Open);
@@ -176,6 +181,12 @@ void MainWindow::createActions()
 //    statusBarAct->setChecked(true);
     statusBarAct->setStatusTip(tr("Change the visibility of the statusbar"));
 
+    fullScreenModeAct = new QAction(tr("Fullscreen"), this);
+    fullScreenModeAct->setShortcut(QKeySequence::FullScreen);
+    fullScreenModeAct->setCheckable(true);
+    fullScreenModeAct->setStatusTip(tr("Enable and disable full screen mode"));
+    connect(fullScreenModeAct, SIGNAL(triggered()), SLOT(fullScreenModeSlot()));
+
     prevTabAct = new QAction(tr("Previous Tab"), this);
     prevTabAct->setIcon(QIcon(":/images/go-previous.png"));
     prevTabAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageDown));
@@ -208,6 +219,7 @@ void MainWindow::createMenus()
 
     QMenu *m = mBar->addMenu(tr("&File"));
     m->addAction(newAct);
+    m->addAction(newWindowAct);
     m->addSeparator();
     m->addAction(openAct);
     openRecentMenu = m->addMenu(tr("Open Recent"));
@@ -234,7 +246,7 @@ void MainWindow::createMenus()
     m->addAction(findAct);
     m->addAction(findNextAct);
     m->addAction(findPrevAct);
-    m->addAction(findAndReplaceAct);
+//    m->addAction(findAndReplaceAct);
 
     m = mBar->addMenu(tr("&View"));
     m->addAction(selectFontAct);
@@ -242,6 +254,8 @@ void MainWindow::createMenus()
     m->addAction(lineNumbersAct);
     m->addAction(toolBarAct);
     m->addAction(statusBarAct);
+    m->addSeparator();
+    m->addAction(fullScreenModeAct);
 
     m = mBar->addMenu(tr("&Navigation"));
     m->addAction(prevTabAct);
@@ -271,7 +285,7 @@ void MainWindow::createToolBar()
     m_toolBar->addAction(pasteAct);
     m_toolBar->addSeparator();
     m_toolBar->addAction(findAct);
-    m_toolBar->addAction(findAndReplaceAct);
+//    m_toolBar->addAction(findAndReplaceAct);
 }
 
 void MainWindow::createStatusBar()
@@ -284,6 +298,11 @@ void MainWindow::createStatusBar()
 void MainWindow::newSlot()
 {
    tabWidget->createNewTab(); 
+}
+
+void MainWindow::newWindowSlot()
+{
+    myapp->createMainWindow();
 }
 
 void MainWindow::openSlot()
@@ -300,7 +319,7 @@ void MainWindow::openFiles(const QStringList &files)
         tabWidget->createNewTab(it.next());
     }
     qDebug() << files;
-    addToRecentFiles(files);
+    fillRecentFiles();
 }
 
 void MainWindow::openRecentSlot()
@@ -393,6 +412,11 @@ void MainWindow::selectFontSlot()
     settings->endGroup();
 
     myapp->updateSettingsRequest(TEXTEDITOR);
+}
+
+void MainWindow::fullScreenModeSlot()
+{
+    setWindowState(windowState() ^ Qt::WindowFullScreen);
 }
 
 void MainWindow::updateActsSlot(int i)
@@ -572,33 +596,5 @@ void MainWindow::fillRecentFiles()
     }
 
     qWarning("the end of MainWindow::fillRecentFiles()");
-}
-
-void MainWindow::addToRecentFiles(const QStringList &list)
-{
-    qWarning("MainWindow::addToRecentFiles");
-
-    AppSettings *appset = myapp->appSettings();
-
-    appset->beginGroup("recentfiles");
-    QStringList files = appset->value("files", QStringList()).toStringList();
-
-//    qDebug() << files;
-
-    foreach(QString s, list) {
-        files.prepend(s);
-    }
-
-    files.removeDuplicates();
-//    qDebug() << files;
-
-    while(files.count() > 10) {
-        files.removeLast();
-    }
-
-    appset->setValue("files", files);
-    appset->endGroup();
-
-    fillRecentFiles();
 }
 

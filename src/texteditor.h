@@ -41,6 +41,7 @@ private slots:
 private:
     bool saveFile(const QString &fileName);
     void setFileName(const QString &fileName);
+    void addToRecentFiles(const QString &fileName);
 
     void lineNumberVisible();
 

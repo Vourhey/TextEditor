@@ -29,6 +29,7 @@ protected:
 
 private slots:
     void newSlot();
+    void newWindowSlot();
     void openSlot();
     void openRecentSlot();
     void clearHistorySlot();
@@ -38,6 +39,7 @@ private slots:
     void lineNumbersSlot(bool v);
     void gotoSlot();
     void selectFontSlot();
+    void fullScreenModeSlot();
     void updateActsSlot(int i);
     void updateWindowTitle(int i);
     void aboutSlot();
@@ -50,7 +52,6 @@ private:
 
     void writeSettings();
     void fillRecentFiles();
-    void addToRecentFiles(const QStringList &list);
 
     TabWidget *tabWidget;
     FindWidget *m_findWidget;
@@ -58,6 +59,7 @@ private:
     FindAndReplace *m_findAndReplace;
 
     QAction *newAct,
+        *newWindowAct,
         *openAct,
         *clearHistoryAct,
         *saveAct,
@@ -79,7 +81,8 @@ private:
     QAction *selectFontAct,
         *lineNumbersAct,
         *toolBarAct,
-        *statusBarAct;
+        *statusBarAct,
+        *fullScreenModeAct;
     QAction *prevTabAct,
         *nextTabAct,
         *gotoAct;

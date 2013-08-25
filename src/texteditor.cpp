@@ -5,6 +5,7 @@
 #include <QDataStream>
 #include <QPainter>
 #include <QTextBlock>
+#include <QDebug>
 
 #include "application.h"
 #include "texteditor.h"
@@ -121,6 +122,174 @@ void TextEditor::deleteSlot()
     QTextCursor cur = textCursor();
     cur.removeSelectedText();
     setTextCursor(cur);
+}
+
+void TextEditor::toLowercase()
+{
+    QTextCursor cur = textCursor();
+    cur.insertText(cur.selectedText().toLower());
+}
+
+void TextEditor::toUppercase()
+{
+    QTextCursor cur = textCursor();
+    cur.insertText(cur.selectedText().toUpper());
+}
+
+void TextEditor::toTitleCase()
+{
+    QTextCursor cur = textCursor();
+    QString str = cur.selectedText();
+    str = str.toLower();
+    
+    int i = 0;
+    while(i < str.length()) {
+        while(i < str.length() && !str.at(i).isLetter()) {
+            ++i;
+        }
+        if(i == str.length()) {
+            break;
+        }
+        str[i] = str.at(i).toUpper();
+        while(i < str.length() && str.at(i).isLetter()) {
+            ++i;
+        }
+        if(i == str.length()) {
+            break;
+        }
+    }
+
+    cur.insertText(str);
+}
+
+void TextEditor::toOppositeCase()
+{
+    QTextCursor cur = textCursor();
+    QString str = cur.selectedText();
+
+    for(int i = 0; i<str.length(); ++i) {
+        if(str[i].isLower()) {
+            str[i] = str[i].toUpper();
+        } else {
+            str[i] = str[i].toLower();
+        }
+    }
+
+    cur.insertText(str);
+}
+
+void TextEditor::transpose()
+{
+    QTextCursor cur = textCursor();
+    cur.beginEditBlock();
+    QString text;
+
+    if(cur.hasSelection()) {
+        int start = cur.selectionStart();
+        int end = cur.selectionEnd();
+        QTextBlock startBlock = document()->findBlock(start);
+        QTextBlock endBlock = document()->findBlock(end);
+
+        if(startBlock == endBlock) {    // single line
+            text = cur.selectedText();
+            QChar *data = text.data();
+            int l = text.length();
+
+            for(int i=0; i< (l / 2); ++i) {
+                QChar t = data[i];
+                data[i] = data[l - 1 - i];
+                data[l - 1 - i] = t;
+            }
+
+            text = QString(data, text.length());
+        } else {
+            cur.setPosition(startBlock.position());
+            cur.setPosition(endBlock.position()+endBlock.length(), QTextCursor::KeepAnchor);
+            text = cur.selectedText();
+            qDebug() << text;
+            QStringList lines = text.split("\u2029");
+            lines.removeLast();
+            
+            qDebug() << lines;
+            int l = lines.length();
+            for(int i = 0; i< (l / 2); ++i) {
+                lines.swap(i, l - 1 - i);
+            }
+            qDebug() << lines;
+            text = lines.join('\n');
+            text.append('\n');
+        }
+        cur.insertText(text);
+    } else if(cur.atBlockStart()) {    // swap previous line and this line
+        moveToLineUpDown(true);
+    } else {    // swap two characters
+        cur.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        text = cur.selectedText();
+        cur.removeSelectedText();
+        cur.movePosition(QTextCursor::Right);
+        cur.insertText(text);
+    }
+
+    cur.endEditBlock();
+    setTextCursor(cur);
+}
+
+void TextEditor::moveToLineUp()
+{
+    moveToLineUpDown(true);
+}
+
+void TextEditor::moveToLineDown()
+{
+    moveToLineUpDown(false);
+}
+
+void TextEditor::moveToLineUpDown(bool up)
+{
+    QTextCursor cur = textCursor();
+    cur.beginEditBlock();
+
+    if(cur.hasSelection()) {
+        int start = cur.selectionStart();
+        int end = cur.selectionEnd();
+        QTextBlock startBlock = document()->findBlock(start);
+        QTextBlock endBlock = document()->findBlock(end);
+
+        cur.setPosition(startBlock.position());
+        cur.setPosition(endBlock.position()+endBlock.length(), QTextCursor::KeepAnchor);
+    } else {
+        int pos = cur.position();
+        QTextBlock block = document()->findBlock(pos);
+        cur.setPosition(block.position());
+        cur.setPosition(block.position()+block.length(), QTextCursor::KeepAnchor);
+    }
+
+    QString text = cur.selectedText();
+    cur.removeSelectedText();
+    if(up) {
+        cur = QTextCursor(cur.block().previous());
+    } else {
+        cur = QTextCursor(cur.block().next());
+    }
+    cur.insertText(text);
+    cur.endEditBlock();
+    setTextCursor(cur);
+}
+
+void TextEditor::duplicateLineSelection()
+{
+    QTextCursor cur = textCursor();
+
+    if(cur.hasSelection()) {
+        QString str = cur.selectedText();
+        cur.setPosition(cur.selectionEnd());
+        cur.insertText(str);
+    } else {
+        QString str = cur.block().text();
+        str.append('\n');
+        cur.movePosition(QTextCursor::NextBlock);
+        cur.insertText(str);
+    }
 }
 
 void TextEditor::addToRecentFiles(const QString &fileName)

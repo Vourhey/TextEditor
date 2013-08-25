@@ -182,10 +182,37 @@ void MainWindow::createActions()
     statusBarAct->setStatusTip(tr("Change the visibility of the statusbar"));
 
     fullScreenModeAct = new QAction(tr("Fullscreen"), this);
-    fullScreenModeAct->setShortcut(QKeySequence::FullScreen);
+    fullScreenModeAct->setShortcut(QKeySequence(Qt::Key_F11));
     fullScreenModeAct->setCheckable(true);
     fullScreenModeAct->setStatusTip(tr("Enable and disable full screen mode"));
     connect(fullScreenModeAct, SIGNAL(triggered()), SLOT(fullScreenModeSlot()));
+
+    toLowercaseAct = new QAction(tr("to Lowercase"), this);
+    toLowercaseAct->setStatusTip(tr("Change the case of the selection to lowercase"));
+
+    toUppercaseAct = new QAction(tr("to Uppercase"), this);
+    toUppercaseAct->setStatusTip(tr("Change the case of the selection to uppercase"));
+
+    toTitleCaseAct = new QAction(tr("to Title Case"), this);
+    toTitleCaseAct->setStatusTip(tr("Change the case of the selection to title case"));
+
+    toOppositeCaseAct = new QAction(tr("to Opposite Case"), this);
+    toOppositeCaseAct->setStatusTip(tr("Change the case of the selection opposite case"));
+
+    transposeAct = new QAction(tr("Transpose"), this);
+    transposeAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
+    transposeAct->setStatusTip(tr("Reverse the order of something"));
+
+    selectionToLineUpAct = new QAction(tr("Line Up"), this);
+    selectionToLineUpAct->setStatusTip(tr("Move the line or selection one line up"));
+    selectionToLineUpAct->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Up));
+
+    selectionToLineDownAct = new QAction(tr("Line Down"), this);
+    selectionToLineDownAct->setStatusTip(tr("Move the line or selection one line down"));
+    selectionToLineDownAct->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Down));
+
+    duplicateLineSelAct = new QAction(tr("Duplicate Line / Selection"), this);
+    duplicateLineSelAct->setStatusTip(tr("Duplicate the current line or selection"));
 
     prevTabAct = new QAction(tr("Previous Tab"), this);
     prevTabAct->setIcon(QIcon(":/images/go-previous.png"));
@@ -256,6 +283,20 @@ void MainWindow::createMenus()
     m->addAction(statusBarAct);
     m->addSeparator();
     m->addAction(fullScreenModeAct);
+
+    m = mBar->addMenu(tr("&Text"));
+    QMenu *subMenu = m->addMenu(tr("Convert"));
+    subMenu->addAction(toLowercaseAct);
+    subMenu->addAction(toUppercaseAct);
+    subMenu->addAction(toTitleCaseAct);
+    subMenu->addAction(toOppositeCaseAct);
+    subMenu->addSeparator();
+    subMenu->addAction(transposeAct);
+    subMenu = m->addMenu(tr("Move Line / Selection"));
+    subMenu->addAction(selectionToLineUpAct);
+    subMenu->addAction(selectionToLineDownAct);
+    m->addSeparator();
+    m->addAction(duplicateLineSelAct);
 
     m = mBar->addMenu(tr("&Navigation"));
     m->addAction(prevTabAct);
@@ -422,65 +463,23 @@ void MainWindow::fullScreenModeSlot()
 void MainWindow::updateActsSlot(int i)
 {
     qWarning("%d %d", tabWidget->count(), i);
-    if(i == -1) {
-        saveAct->setEnabled(false);
-        saveAsAct->setEnabled(false);
-        saveAllAct->setEnabled(false);
-        closeTabAct->setEnabled(false);
-        undoAct->setEnabled(false);
-        redoAct->setEnabled(false);
-        cutAct->setEnabled(false);
-        copyAct->setEnabled(false);
-        pasteAct->setEnabled(false);
-        deleteAct->setEnabled(false);
-        selectAllAct->setEnabled(false);
-        findAct->setEnabled(false);
-        findNextAct->setEnabled(false);
-        findPrevAct->setEnabled(false);
-        findAndReplaceAct->setEnabled(false);
-        prevTabAct->setEnabled(false);
-        nextTabAct->setEnabled(false);
-        gotoAct->setEnabled(false);
 
-        if(m_findWidget) {
-            m_findWidget->hide();
-        }
-        setWindowTitle("TextEditor");
+    if(i == -1) {
         return;
     }
 
-    saveAct->setEnabled(true);
-    saveAsAct->setEnabled(true);
-    saveAllAct->setEnabled(true);
-    closeTabAct->setEnabled(true);
-    pasteAct->setEnabled(true);
-    selectAllAct->setEnabled(true);
-    findAct->setEnabled(true);
-    findNextAct->setEnabled(true);
-    findPrevAct->setEnabled(true);
-    findAndReplaceAct->setEnabled(true);
-    gotoAct->setEnabled(true);
-
-    if(tabWidget->count() > 1) {
+    if(tabWidget->count() == 1) {
+        closeTabAct->setEnabled(false);
+    } else {
         prevTabAct->setEnabled(true);
         nextTabAct->setEnabled(true);
+        closeTabAct->setEnabled(true);
     }
 
     TextEditor *te = tabWidget->editor(i);
 
     saveAct->disconnect();
-    connect(saveAct, SIGNAL(triggered()), te, SLOT(save()));
     saveAsAct->disconnect();
-    connect(saveAsAct, SIGNAL(triggered()), te, SLOT(saveAs()));
-
-    undoAct->setEnabled(te->document()->isUndoAvailable());
-    redoAct->setEnabled(te->document()->isRedoAvailable());
-    cutAct->setEnabled(te->textCursor().hasSelection());
-    copyAct->setEnabled(te->textCursor().hasSelection());
-    deleteAct->setEnabled(te->textCursor().hasSelection());
-
-    /* todo... */
-
     undoAct->disconnect();
     redoAct->disconnect();
     cutAct->disconnect();
@@ -488,16 +487,41 @@ void MainWindow::updateActsSlot(int i)
     pasteAct->disconnect();
     selectAllAct->disconnect();
     deleteAct->disconnect();
+    toLowercaseAct->disconnect();
+    toUppercaseAct->disconnect();
+    toTitleCaseAct->disconnect();
+    toOppositeCaseAct->disconnect();
+    transposeAct->disconnect();
+    selectionToLineUpAct->disconnect();
+    selectionToLineDownAct->disconnect();
+    duplicateLineSelAct->disconnect();
 
-    /* todo */
-    /* нужно отсоединять предыдущий редактор от всех этих сигналов/слотов */
+    undoAct->setEnabled(te->document()->isUndoAvailable());
+    redoAct->setEnabled(te->document()->isRedoAvailable());
+    cutAct->setEnabled(te->textCursor().hasSelection());
+    copyAct->setEnabled(te->textCursor().hasSelection());
+    deleteAct->setEnabled(te->textCursor().hasSelection());
+    toLowercaseAct->setEnabled(te->textCursor().hasSelection());
+    toUppercaseAct->setEnabled(te->textCursor().hasSelection());
+    toTitleCaseAct->setEnabled(te->textCursor().hasSelection());
+    toOppositeCaseAct->setEnabled(te->textCursor().hasSelection());
+//    selectionToLineUpAct->setEnabled(te->textCursor().hasSelection());
+//    selectionToLineDownAct->setEnabled(te->textCursor().hasSelection());
+
     connect(te->document(), SIGNAL(undoAvailable(bool)), undoAct, SLOT(setEnabled(bool)));
     connect(te->document(), SIGNAL(redoAvailable(bool)), redoAct, SLOT(setEnabled(bool)));
     connect(te, SIGNAL(copyAvailable(bool)), cutAct, SLOT(setEnabled(bool)));
     connect(te, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)));
     connect(te, SIGNAL(copyAvailable(bool)), deleteAct, SLOT(setEnabled(bool)));
-    /* todo */
+    connect(te, SIGNAL(copyAvailable(bool)), toLowercaseAct, SLOT(setEnabled(bool)));
+    connect(te, SIGNAL(copyAvailable(bool)), toUppercaseAct, SLOT(setEnabled(bool)));
+    connect(te, SIGNAL(copyAvailable(bool)), toTitleCaseAct, SLOT(setEnabled(bool)));
+    connect(te, SIGNAL(copyAvailable(bool)), toOppositeCaseAct, SLOT(setEnabled(bool)));
+//    connect(te, SIGNAL(copyAvailable(bool)), selectionToLineUpAct, SLOT(setEnabled(bool)));
+//    connect(te, SIGNAL(copyAvailable(bool)), selectionToLineDownAct, SLOT(setEnabled(bool)));
 
+    connect(saveAct, SIGNAL(triggered()), te, SLOT(save()));
+    connect(saveAsAct, SIGNAL(triggered()), te, SLOT(saveAs()));
     connect(undoAct, SIGNAL(triggered()), te, SLOT(undo()));
     connect(redoAct, SIGNAL(triggered()), te, SLOT(redo()));
     connect(cutAct, SIGNAL(triggered()), te, SLOT(cut()));
@@ -505,6 +529,14 @@ void MainWindow::updateActsSlot(int i)
     connect(pasteAct, SIGNAL(triggered()), te, SLOT(paste()));
     connect(selectAllAct, SIGNAL(triggered()), te, SLOT(selectAll()));
     connect(deleteAct, SIGNAL(triggered()), te, SLOT(deleteSlot()));
+    connect(toLowercaseAct, SIGNAL(triggered()), te, SLOT(toLowercase()));
+    connect(toUppercaseAct, SIGNAL(triggered()), te, SLOT(toUppercase()));
+    connect(toTitleCaseAct, SIGNAL(triggered()), te, SLOT(toTitleCase()));
+    connect(toOppositeCaseAct, SIGNAL(triggered()), te, SLOT(toOppositeCase()));
+    connect(transposeAct, SIGNAL(triggered()), te, SLOT(transpose()));
+    connect(selectionToLineUpAct, SIGNAL(triggered()), te, SLOT(moveToLineUp()));
+    connect(selectionToLineDownAct, SIGNAL(triggered()), te, SLOT(moveToLineDown()));
+    connect(duplicateLineSelAct, SIGNAL(triggered()), te, SLOT(duplicateLineSelection()));
 
 // ? do i need it?
     if(m_findWidget) {
@@ -594,7 +626,5 @@ void MainWindow::fillRecentFiles()
     } else {
         openRecentMenu->setEnabled(false);
     }
-
-    qWarning("the end of MainWindow::fillRecentFiles()");
 }
 

@@ -27,6 +27,14 @@ public slots:
     bool save();
     bool saveAs();
     void deleteSlot();
+    void toLowercase();
+    void toUppercase();
+    void toTitleCase();
+    void toOppositeCase();
+    void transpose();
+    void moveToLineUp();
+    void moveToLineDown();
+    void duplicateLineSelection();
 
 signals:
     void fileNameChanged();
@@ -42,6 +50,7 @@ private:
     bool saveFile(const QString &fileName);
     void setFileName(const QString &fileName);
     void addToRecentFiles(const QString &fileName);
+    void moveToLineUpDown(bool up);
 
     void lineNumberVisible();
 

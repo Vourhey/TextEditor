@@ -83,6 +83,14 @@ private:
         *toolBarAct,
         *statusBarAct,
         *fullScreenModeAct;
+    QAction *toLowercaseAct,
+        *toUppercaseAct,
+        *toTitleCaseAct,
+        *toOppositeCaseAct,
+        *transposeAct,
+        *selectionToLineUpAct,
+        *selectionToLineDownAct,
+        *duplicateLineSelAct;
     QAction *prevTabAct,
         *nextTabAct,
         *gotoAct;

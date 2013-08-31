@@ -34,7 +34,9 @@ SOURCES = src/main.cpp      \
     src/application.cpp     \
     src/gotodialog.cpp      \
     src/findandreplace.cpp  \
-    src/appsettings.cpp
+    src/appsettings.cpp     \
+    src/locationwidget.cpp  \
+    src/overwritewidget.cpp
 
 HEADERS = src/mainwindow.h  \
     src/tabwidget.h         \
@@ -43,5 +45,7 @@ HEADERS = src/mainwindow.h  \
     src/application.h       \
     src/gotodialog.h        \
     src/findandreplace.h    \
-    src/appsettings.h
+    src/appsettings.h       \
+    src/locationwidget.h    \
+    src/overwritewidget.h
 

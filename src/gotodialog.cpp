@@ -13,7 +13,6 @@ GotoDialog::GotoDialog(QWidget *parent)
     lineSpin = new QSpinBox;
     lineSpin->setMinimum(1);
     columnSpin = new QSpinBox;
-    columnSpin->setMinimum(1);
     connect(lineSpin, SIGNAL(valueChanged(int)), SLOT(updateColumnSpin(int)));
 
     cancelButton = new QPushButton(tr("Cancel"));
@@ -50,7 +49,7 @@ void GotoDialog::jump()
 {
     QTextBlock block = m_editor->document()->findBlockByLineNumber(lineSpin->value() - 1);
     int p = block.position();
-    p += columnSpin->value() - 1;
+    p += columnSpin->value();
 
     QTextCursor tc = m_editor->textCursor();
     tc.setPosition(p);

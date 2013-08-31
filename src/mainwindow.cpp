@@ -19,6 +19,8 @@
 #include "gotodialog.h"
 #include "findandreplace.h"
 #include "application.h"
+#include "locationwidget.h"
+#include "overwritewidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -332,6 +334,10 @@ void MainWindow::createToolBar()
 void MainWindow::createStatusBar()
 {
     m_statusBar = statusBar();
+    m_locationWidget = new LocationWidget;
+    m_statusBar->addPermanentWidget(m_locationWidget);
+    m_overwriteWidget = new OverwriteWidget;
+    m_statusBar->addPermanentWidget(m_overwriteWidget);
     m_statusBar->showMessage(tr("Ready"), 2000);
     connect(statusBarAct, SIGNAL(toggled(bool)), m_statusBar, SLOT(setVisible(bool)));
 }
@@ -477,6 +483,8 @@ void MainWindow::updateActsSlot(int i)
     }
 
     TextEditor *te = tabWidget->editor(i);
+    m_locationWidget->setEditor(te);
+    m_overwriteWidget->setEditor(te);
 
     saveAct->disconnect();
     saveAsAct->disconnect();
@@ -505,8 +513,6 @@ void MainWindow::updateActsSlot(int i)
     toUppercaseAct->setEnabled(te->textCursor().hasSelection());
     toTitleCaseAct->setEnabled(te->textCursor().hasSelection());
     toOppositeCaseAct->setEnabled(te->textCursor().hasSelection());
-//    selectionToLineUpAct->setEnabled(te->textCursor().hasSelection());
-//    selectionToLineDownAct->setEnabled(te->textCursor().hasSelection());
 
     connect(te->document(), SIGNAL(undoAvailable(bool)), undoAct, SLOT(setEnabled(bool)));
     connect(te->document(), SIGNAL(redoAvailable(bool)), redoAct, SLOT(setEnabled(bool)));
@@ -517,8 +523,7 @@ void MainWindow::updateActsSlot(int i)
     connect(te, SIGNAL(copyAvailable(bool)), toUppercaseAct, SLOT(setEnabled(bool)));
     connect(te, SIGNAL(copyAvailable(bool)), toTitleCaseAct, SLOT(setEnabled(bool)));
     connect(te, SIGNAL(copyAvailable(bool)), toOppositeCaseAct, SLOT(setEnabled(bool)));
-//    connect(te, SIGNAL(copyAvailable(bool)), selectionToLineUpAct, SLOT(setEnabled(bool)));
-//    connect(te, SIGNAL(copyAvailable(bool)), selectionToLineDownAct, SLOT(setEnabled(bool)));
+    connect(te, SIGNAL(cursorPositionChanged()), m_locationWidget, SLOT(updateLabel()));
 
     connect(saveAct, SIGNAL(triggered()), te, SLOT(save()));
     connect(saveAsAct, SIGNAL(triggered()), te, SLOT(saveAs()));

@@ -9,6 +9,8 @@ class FindWidget;
 class GotoDialog;
 class FindAndReplace;
 class AppSettings;
+class LocationWidget;
+class OverwriteWidget;
 
 class QAction;
 class QMenu;
@@ -57,6 +59,8 @@ private:
     FindWidget *m_findWidget;
     GotoDialog *m_gotoDialog;
     FindAndReplace *m_findAndReplace;
+    LocationWidget *m_locationWidget;
+    OverwriteWidget *m_overwriteWidget;
 
     QAction *newAct,
         *newWindowAct,
